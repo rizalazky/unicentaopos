@@ -30,6 +30,9 @@ import com.openbravo.pos.panels.JPanelTable2;
 import com.openbravo.pos.ticket.ProductFilter;
 
 import java.awt.Component;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JButton;
 
 /**
@@ -52,21 +55,25 @@ public class ProductsPanel extends JPanelTable2 implements EditorListener {
      */
     @Override
     protected void init() {   
-        m_dlSales = (DataLogicSales) app.getBean("com.openbravo.pos.forms.DataLogicSales");
-        
-        jproductfilter = new ProductFilter();     
-        jproductfilter.init(app);
-
-        row = m_dlSales.getProductsRow();
-
-        lpr =  new ListProviderCreator(m_dlSales.getProductCatQBF(), jproductfilter);
-
-        spr = new SaveProvider(
-            m_dlSales.getProductCatUpdate(),
-            m_dlSales.getProductCatInsert(),
-            m_dlSales.getProductCatDelete());
-        
-        jeditor = new ProductsEditor(app, dirty);       
+        try {
+            m_dlSales = (DataLogicSales) app.getBean("com.openbravo.pos.forms.DataLogicSales");
+            
+            jproductfilter = new ProductFilter();
+            jproductfilter.init(app);
+            
+            row = m_dlSales.getProductsRow();
+            
+            lpr =  new ListProviderCreator(m_dlSales.getProductCatQBF(), jproductfilter);
+            
+            spr = new SaveProvider(
+                    m_dlSales.getProductCatUpdate(),
+                    m_dlSales.getProductCatInsert(),
+                    m_dlSales.getProductCatDelete());
+                   
+            jeditor = new ProductsEditor(app, dirty);
+        } catch (IOException ex) {
+            Logger.getLogger(ProductsPanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     /**

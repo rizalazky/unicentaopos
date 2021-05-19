@@ -49,7 +49,6 @@ public class TokenBasedAuth {
 
     
 
-
     public static void main(String[] args) {
 
             
@@ -170,6 +169,75 @@ public class TokenBasedAuth {
                 + "&oauth_token=" + TOKEN_ID
                 + "&oauth_version=" + oauth_version
                 + "&record_type=get_products"
+                + "&script=" + SCRIPT_ID
+        );
+        String sig_string=URLEncoder.encode(CONSUMER_SECRET)+"&"+URLEncoder.encode(TOKEN_SECRET);
+   
+        String signature="";
+        try {
+            signature=generateSignature(base_string,sig_string,"HmacSHA256");
+        } catch (Exception ex) {
+            Logger.getLogger(TokenBasedAuth.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        String header="OAuth realm=\""+ REALM +"\","
+            +"oauth_consumer_key=\""+CONSUMER_KEY +"\","
+            +"oauth_token=\""+TOKEN_ID+"\","
+            +"oauth_signature_method=\""+oauth_signature_method+"\","
+            +"oauth_timestamp=\""+oauth_timestamp+"\","
+            +"oauth_nonce=\""+oauth_nonce+"\","
+            +"oauth_version=\""+oauth_version+"\","
+            +"oauth_signature=\""+URLEncoder.encode(signature)+"\"";
+        
+        conn.setReadTimeout(60 * 1000);
+        conn.setConnectTimeout(60 * 1000);
+        conn.setRequestProperty("Authorization", header);
+        conn.setRequestMethod("GET");
+        conn.setRequestProperty("Content-Type", APP_JSON);
+        
+//        int responseCode=conn.getResponseCode();
+        String responseMsg=conn.getResponseMessage();
+        
+        
+        if("OK".equals(responseMsg)){
+            String response = "";
+            try (Scanner scanner = new Scanner(conn.getInputStream())) {
+                while(scanner.hasNextLine()){
+                    response += scanner.nextLine();
+                    response += "\n";
+                }
+                
+            }
+            
+            return response;
+        }
+        
+        return null;  
+    }
+    
+    public String getMasterCustomers() throws IOException{
+        String url=REST_URL+"?script=11&deploy=2&record_type=get_all_customer";
+        URL myURL = new URL(url);
+        HttpURLConnection conn = (HttpURLConnection)myURL.openConnection();
+
+        String oauth_nonce = RandomStringUtils.randomAlphanumeric(20);
+        Long timestamp = System.currentTimeMillis() / 1000L;
+
+        String oauth_timestamp=timestamp.toString();
+        String oauth_signature_method="HMAC-SHA256";
+        String oauth_version="1.0";
+        
+        String base_string =
+        "GET&" + URLEncoder.encode(REST_URL) +"&"+
+        URLEncoder.encode(
+            "deploy=" + DEPLOYMENT_ID
+                + "&oauth_consumer_key=" + CONSUMER_KEY
+                + "&oauth_nonce=" + oauth_nonce
+                + "&oauth_signature_method=" +oauth_signature_method
+                + "&oauth_timestamp=" + oauth_timestamp
+                + "&oauth_token=" + TOKEN_ID
+                + "&oauth_version=" + oauth_version
+                + "&record_type=get_all_customer"
                 + "&script=" + SCRIPT_ID
         );
         String sig_string=URLEncoder.encode(CONSUMER_SECRET)+"&"+URLEncoder.encode(TOKEN_SECRET);

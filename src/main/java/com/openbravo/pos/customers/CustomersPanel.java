@@ -30,6 +30,9 @@ import com.openbravo.data.user.ListProviderCreator;
 import com.openbravo.data.user.SaveProvider;
 import com.openbravo.pos.forms.AppLocal;
 import com.openbravo.pos.panels.JPanelTable;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.ListCellRenderer;
 
 /**
@@ -53,8 +56,12 @@ public class CustomersPanel extends JPanelTable {
     protected void init() {        
         DataLogicCustomers dlCustomers  = (DataLogicCustomers) app.getBean("com.openbravo.pos.customers.DataLogicCustomers");
         tcustomers = dlCustomers.getTableCustomers();        
-        jeditor = new CustomersView(app, dirty);
+        try {
+            jeditor = new CustomersView(app, dirty);
 //                System.out.println(tcustomers.getListSQL());
+        } catch (IOException ex) {
+            Logger.getLogger(CustomersPanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
     }
     

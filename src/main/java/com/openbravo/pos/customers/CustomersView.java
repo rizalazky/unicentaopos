@@ -19,6 +19,8 @@
 
 package com.openbravo.pos.customers;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.openbravo.basic.BasicException;
 import com.openbravo.beans.JCalendarDialog;
 import com.openbravo.data.gui.ComboBoxValModel;
@@ -30,6 +32,7 @@ import com.openbravo.pos.forms.AppLocal;
 import com.openbravo.pos.forms.AppView;
 import com.openbravo.pos.forms.BeanFactoryException;
 import com.openbravo.pos.forms.DataLogicSales;
+import com.openbravo.pos.forms.TokenBasedAuth;
 import com.openbravo.pos.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -49,6 +52,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -75,14 +80,14 @@ public final class CustomersView extends javax.swing.JPanel implements EditorRec
     /** Creates new form CustomersView
      * @param app
      * @param dirty */
-    public CustomersView(AppView app, DirtyManager dirty) {
+    public CustomersView(AppView app, DirtyManager dirty) throws IOException {
         try {
             setAppView(app);
             dlSales = (DataLogicSales) app.getBean("com.openbravo.pos.forms.DataLogicSales");
 
         
         initComponents();
-
+        customersInit();
         m_sentcat = dlSales.getTaxCustCategoriesList();
         m_CategoryModel = new ComboBoxValModel();
         
@@ -121,6 +126,70 @@ public final class CustomersView extends javax.swing.JPanel implements EditorRec
             log.error(ex.getMessage());
         }
     }
+    
+    public void customersInit() throws IOException{
+      TokenBasedAuth tokenBasedAuth=new com.openbravo.pos.forms.TokenBasedAuth();
+      String responseString=tokenBasedAuth.getMasterCustomers();
+      System.out.println("test response cs"+responseString);
+      JsonElement je = new JsonParser().parse(responseString);
+      int jsonLength=je.getAsJsonArray().size();
+    
+        for(int i=0;i<jsonLength;i++){
+                String id=je.getAsJsonArray().get(i).getAsJsonObject().get("internalid").getAsString();
+                String internalId=je.getAsJsonArray().get(i).getAsJsonObject().get("internalid").getAsString();
+                String companyname=je.getAsJsonArray().get(i).getAsJsonObject().get("companyname").getAsString();
+                String dateCreated=je.getAsJsonArray().get(i).getAsJsonObject().get("datecreated").getAsString();
+                String firstname=je.getAsJsonArray().get(i).getAsJsonObject().get("firstname").getAsString();
+                String lastname=je.getAsJsonArray().get(i).getAsJsonObject().get("lastname").getAsString();
+                String email=je.getAsJsonArray().get(i).getAsJsonObject().get("email").getAsString();
+                String phone=je.getAsJsonArray().get(i).getAsJsonObject().get("phone").getAsString();
+                String addressline1=je.getAsJsonArray().get(i).getAsJsonObject().get("addresline1").getAsString();
+                String city=je.getAsJsonArray().get(i).getAsJsonObject().get("city").getAsString();
+                String country=je.getAsJsonArray().get(i).getAsJsonObject().get("country").getAsString();
+                String passcode=je.getAsJsonArray().get(i).getAsJsonObject().get("passcode").getAsString();
+                String state=je.getAsJsonArray().get(i).getAsJsonObject().get("state").getAsString();
+                System.out.println("TEST NAMA DATECREATED ="+internalId+" | "+companyname +" | "+dateCreated);
+                Object[] newcat = new Object[28];
+                newcat[0] = id;
+                newcat[1] = phone;
+                newcat[2] = companyname;
+                newcat[3] = addressline1;
+                newcat[4] = passcode;
+                newcat[5] = city;
+                newcat[6] = state;
+                newcat[7] = country;
+                newcat[8]= firstname;
+                newcat[9] = lastname;
+                newcat[10] = email;
+                newcat[11] = phone;
+                newcat[12] =id;
+                newcat[13] = id;
+                newcat[14] = id;
+                newcat[15] = phone;
+                newcat[16] = companyname;
+                newcat[17] = addressline1;
+                newcat[18] = passcode;
+                newcat[19] = city;
+                newcat[10] = state;
+                newcat[21] = country;
+                newcat[22]= firstname;
+                newcat[23] = lastname;
+                newcat[24] = email;
+                newcat[25] = phone;
+                newcat[26] = id;
+                newcat[27] = id;
+                try {
+//                    Object[] newProductsCat = new Object[1];
+//                    newProductsCat[0] = id;
+//                    dlSales.createProductsCat(newProductsCat);
+                    dlSales.createCustomer(newcat);
+                } catch (BasicException ex) {
+                    Logger.getLogger(CustomersView.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            
+        }
+  
+  }
 
     private void init() {
             writeValueEOF(); 
@@ -146,6 +215,11 @@ public final class CustomersView extends javax.swing.JPanel implements EditorRec
     @Override
     public void refresh() {
     jLblTranCount.setText(null);
+//        try {
+//            customersInit();
+//        } catch (IOException ex) {
+//            Logger.getLogger(CustomersView.class.getName()).log(Level.SEVERE, null, ex);
+//        }
     }
     
     /**

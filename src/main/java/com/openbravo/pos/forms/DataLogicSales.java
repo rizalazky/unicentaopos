@@ -80,6 +80,8 @@ public class DataLogicSales extends BeanFactoryDataSingle {
     protected SentenceExec m_createSupp;
      protected SentenceExec m_createProducts;
      protected SentenceExec m_updateProducts;
+     protected SentenceExec m_creteProductsCat;
+     protected SentenceExec m_creteCustomer;
     
 
     protected AppView m_App;
@@ -203,10 +205,54 @@ public class DataLogicSales extends BeanFactoryDataSingle {
                 Datas.STRING,
                 Datas.BOOLEAN})
         );
+        
+        
 //        Rizal Azky 17/05/2021 Start
+
+        m_creteProductsCat=new StaticSentence(s,"INSERT INTO products_cat (product) VALUES (?) "
+                +"ON DUPLICATE KEY UPDATE product=?"
+                ,new SerializerWriteBasic(new Datas[]{Datas.STRING,Datas.STRING}
+        ));
+        
+        m_creteCustomer=new StaticSentence(s,"INSERT INTO customers (id,searchkey,name,address,postal,city,region,country,firstname,lastname,email,phone,card,taxid) "
+                +"VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) "
+                +"ON DUPLICATE KEY UPDATE id=?,searchkey=?,name=?,address=?,postal=?,city=?,region=?,country=?,firstname=?,lastname=?,email=?,phone=?,card=?,taxid=?"
+                ,new SerializerWriteBasic(new Datas[]{
+                    Datas.STRING,
+                    Datas.STRING,
+                    Datas.STRING,
+                    Datas.STRING,
+                    Datas.STRING,
+                    Datas.STRING,
+                    Datas.STRING,
+                    Datas.STRING,
+                    Datas.STRING,
+                    Datas.STRING,
+                    Datas.STRING,
+                    Datas.STRING,
+                    Datas.STRING,
+                    Datas.STRING,
+                    Datas.STRING,
+                    Datas.STRING,
+                    Datas.STRING,
+                    Datas.STRING,
+                    Datas.STRING,
+                    Datas.STRING,
+                    Datas.STRING,
+                    Datas.STRING,
+                    Datas.STRING,
+                    Datas.STRING,
+                    Datas.STRING,
+                    Datas.STRING,
+                    Datas.STRING,
+                    Datas.STRING,
+                }
+        ));
+        
+        
         m_createProducts = new StaticSentence(s,
                 "INSERT INTO products ( ID, REFERENCE, CODE, CATEGORY,NAME , taxcat,pricebuy,pricesell,uom) "
-                        + "VALUES (?, ?, ? ,? ,?,?,?,?,?)"
+                        + "VALUES (?, ?, ? ,? ,?,?,?,?,?) ON DUPLICATE KEY UPDATE REFERENCE=?, CODE=?, CATEGORY=?,NAME=? , taxcat=?,pricebuy=?,pricesell=?,uom=?"
                 , new SerializerWriteBasic(new Datas[]{
                 Datas.STRING,
                 Datas.STRING,
@@ -214,8 +260,16 @@ public class DataLogicSales extends BeanFactoryDataSingle {
                 Datas.STRING,
                 Datas.STRING,
                 Datas.STRING,
+                Datas.DOUBLE,
+                Datas.DOUBLE,
                 Datas.STRING,
                 Datas.STRING,
+                Datas.STRING,
+                Datas.STRING,
+                Datas.STRING,
+                Datas.STRING,
+                Datas.DOUBLE,
+                Datas.DOUBLE,
                 Datas.STRING})
         );
         
@@ -254,6 +308,15 @@ public class DataLogicSales extends BeanFactoryDataSingle {
     
     public final void createProducts(Object[] products) throws BasicException {
         m_createProducts.exec(products);
+        
+    }
+    public final void createCustomer(Object[] products) throws BasicException {
+        m_creteCustomer.exec(products);
+    }
+    
+     public final void createProductsCat(Object[] products) throws BasicException {
+        m_creteProductsCat.exec(products);
+        
     }
     
     public final void updateProducts(Object[] products) throws BasicException {

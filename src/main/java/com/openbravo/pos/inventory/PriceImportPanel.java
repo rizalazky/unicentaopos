@@ -30,6 +30,9 @@ import com.openbravo.pos.forms.DataLogicSales;
 import com.openbravo.pos.panels.JPanelTable2;
 import com.openbravo.pos.ticket.ProductFilter;
 import java.awt.Component;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JButton;
 
 /**
@@ -69,8 +72,12 @@ public class PriceImportPanel extends JPanelTable2 implements EditorListener {
             m_dlSales.getProductCatInsert(),
             m_dlSales.getProductCatDelete());
         
-        // el panel del editor
-        jeditor = new ProductsEditor(app, dirty);       
+        try {
+            // el panel del editor
+            jeditor = new ProductsEditor(app, dirty);
+        } catch (IOException ex) {
+            Logger.getLogger(PriceImportPanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     /**

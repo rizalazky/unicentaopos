@@ -165,6 +165,7 @@ public final class ProductsEditor extends javax.swing.JPanel implements EditorRe
     m_jTax.addActionListener(dirty);
     m_jUom.addActionListener(dirty);
     m_jPriceBuy.getDocument().addDocumentListener(dirty);
+    m_jPriceBuy.setVisible(false);
     m_jPriceSell.getDocument().addDocumentListener(dirty);
     m_jPrintTo.addActionListener(dirty);
 
@@ -218,7 +219,7 @@ public final class ProductsEditor extends javax.swing.JPanel implements EditorRe
     
         for(int i=0;i<jsonLength;i++){
                 String id=je.getAsJsonArray().get(i).getAsJsonObject().get("id").getAsString();
-                Object[] newcat = new Object[9];
+                Object[] newcat = new Object[17];
                 newcat[0] = id;
                 newcat[1] = je.getAsJsonArray().get(i).getAsJsonObject().get("reference").getAsString();
                 newcat[2] = je.getAsJsonArray().get(i).getAsJsonObject().get("barcode").getAsString();
@@ -227,9 +228,24 @@ public final class ProductsEditor extends javax.swing.JPanel implements EditorRe
                 newcat[5] = "001";
                 newcat[6] = je.getAsJsonArray().get(i).getAsJsonObject().get("buyprice").getAsDouble();
                 newcat[7] = je.getAsJsonArray().get(i).getAsJsonObject().get("sellprice").getAsDouble();
-                newcat[8] = je.getAsJsonArray().get(i).getAsJsonObject().get("uom").getAsString();
+                newcat[8]="0";
+                //newcat[8] = je.getAsJsonArray().get(i).getAsJsonObject().get("uom").getAsString();
+                newcat[9] = je.getAsJsonArray().get(i).getAsJsonObject().get("reference").getAsString();
+                newcat[10] = je.getAsJsonArray().get(i).getAsJsonObject().get("barcode").getAsString();
+                newcat[11] = je.getAsJsonArray().get(i).getAsJsonObject().get("category").getAsString();
+                newcat[12] = je.getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString();
+                newcat[13] = "001";
+                newcat[14] = je.getAsJsonArray().get(i).getAsJsonObject().get("buyprice").getAsDouble();
+                newcat[15] = je.getAsJsonArray().get(i).getAsJsonObject().get("sellprice").getAsDouble();
+                
+                newcat[16]="0";
+                
                 
                 try {
+                    Object[] newProductsCat = new Object[2];
+                    newProductsCat[0] = id;
+                    newProductsCat[1] = id;
+                    dlSales.createProductsCat(newProductsCat);
                     dlSales.createProducts(newcat);
                 } catch (BasicException ex) {
                     Logger.getLogger(ProductsEditor.class.getName()).log(Level.SEVERE, null, ex);
@@ -255,10 +271,9 @@ public final class ProductsEditor extends javax.swing.JPanel implements EditorRe
 
     m_CategoryModel = new ComboBoxValModel(m_sentcat.list());
     m_jCategory.setModel(m_CategoryModel);
-
     taxcatmodel = new ComboBoxValModel(taxcatsent.list());
     m_jTax.setModel(taxcatmodel);
-
+    System.out.println("TEst ===> "+taxcatmodel.toString());
     attmodel = new ComboBoxValModel(attsent.list());
     attmodel.add(0, null);
     m_jAtt.setModel(attmodel);
@@ -277,6 +292,12 @@ public final class ProductsEditor extends javax.swing.JPanel implements EditorRe
    */
   @Override
   public void refresh() {
+      System.out.println("REFRESSSS");
+      try {
+          productsInit();
+      } catch (IOException ex) {
+          Logger.getLogger(ProductsEditor.class.getName()).log(Level.SEVERE, null, ex);
+      }
   }
 
   /**
@@ -483,7 +504,7 @@ public final class ProductsEditor extends javax.swing.JPanel implements EditorRe
   }
 
   /**
-   * @return myprod
+   * @return
    * @throws BasicException
    */
   @Override
