@@ -242,11 +242,19 @@ public final class ProductsEditor extends javax.swing.JPanel implements EditorRe
                 
                 
                 try {
+                    Double qtyOnHand= je.getAsJsonArray().get(i).getAsJsonObject().get("locations").getAsJsonArray().get(0).getAsJsonObject().get("qtyOnHand").getAsDouble();
+                    System.out.println(qtyOnHand);
+                    dlSales.createProducts(newcat);
                     Object[] newProductsCat = new Object[2];
                     newProductsCat[0] = id;
                     newProductsCat[1] = id;
                     dlSales.createProductsCat(newProductsCat);
-                    dlSales.createProducts(newcat);
+                    Object[] newStockCurrent=new Object[4];
+                    newStockCurrent[0]=id;
+                    newStockCurrent[1]=qtyOnHand;
+                    newStockCurrent[2]=id;
+                    newStockCurrent[3]=qtyOnHand;
+                    dlSales.createStockCurrent(newStockCurrent);
                 } catch (BasicException ex) {
                     Logger.getLogger(ProductsEditor.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -273,7 +281,6 @@ public final class ProductsEditor extends javax.swing.JPanel implements EditorRe
     m_jCategory.setModel(m_CategoryModel);
     taxcatmodel = new ComboBoxValModel(taxcatsent.list());
     m_jTax.setModel(taxcatmodel);
-    System.out.println("TEst ===> "+taxcatmodel.toString());
     attmodel = new ComboBoxValModel(attsent.list());
     attmodel.add(0, null);
     m_jAtt.setModel(attmodel);

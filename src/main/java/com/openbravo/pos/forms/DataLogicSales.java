@@ -82,6 +82,7 @@ public class DataLogicSales extends BeanFactoryDataSingle {
      protected SentenceExec m_updateProducts;
      protected SentenceExec m_creteProductsCat;
      protected SentenceExec m_creteCustomer;
+     protected SentenceExec m_createStockCurrent;
     
 
     protected AppView m_App;
@@ -214,6 +215,15 @@ public class DataLogicSales extends BeanFactoryDataSingle {
                 ,new SerializerWriteBasic(new Datas[]{Datas.STRING,Datas.STRING}
         ));
         
+        m_createStockCurrent=new StaticSentence(s,"INSERT INTO stockcurrent (location,product,units) VALUES (0,?,?) "
+                +"ON DUPLICATE KEY UPDATE product=?,units=?"
+                ,new SerializerWriteBasic(new Datas[]{
+                    Datas.STRING,
+                    Datas.DOUBLE,
+                    Datas.STRING,
+                    Datas.DOUBLE}
+        ));
+        
         m_creteCustomer=new StaticSentence(s,"INSERT INTO customers (id,searchkey,name,address,postal,city,region,country,firstname,lastname,email,phone,card,taxid) "
                 +"VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) "
                 +"ON DUPLICATE KEY UPDATE id=?,searchkey=?,name=?,address=?,postal=?,city=?,region=?,country=?,firstname=?,lastname=?,email=?,phone=?,card=?,taxid=?"
@@ -310,6 +320,13 @@ public class DataLogicSales extends BeanFactoryDataSingle {
         m_createProducts.exec(products);
         
     }
+    
+    public final void createStockCurrent(Object[] stockCurrent) throws BasicException {
+        m_createStockCurrent.exec(stockCurrent);
+        
+    }
+    
+    
     public final void createCustomer(Object[] products) throws BasicException {
         m_creteCustomer.exec(products);
     }
