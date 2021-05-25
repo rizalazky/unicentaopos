@@ -219,11 +219,12 @@ public final class ProductsEditor extends javax.swing.JPanel implements EditorRe
     
         for(int i=0;i<jsonLength;i++){
                 String id=je.getAsJsonArray().get(i).getAsJsonObject().get("id").getAsString();
+                String category=je.getAsJsonArray().get(i).getAsJsonObject().get("category").getAsString();;
                 Object[] newcat = new Object[17];
                 newcat[0] = id;
                 newcat[1] = je.getAsJsonArray().get(i).getAsJsonObject().get("reference").getAsString();
                 newcat[2] = je.getAsJsonArray().get(i).getAsJsonObject().get("barcode").getAsString();
-                newcat[3] = je.getAsJsonArray().get(i).getAsJsonObject().get("category").getAsString();
+                newcat[3] = category;
                 newcat[4] = je.getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString();
                 newcat[5] = "001";
                 newcat[6] = je.getAsJsonArray().get(i).getAsJsonObject().get("buyprice").getAsDouble();
@@ -232,32 +233,41 @@ public final class ProductsEditor extends javax.swing.JPanel implements EditorRe
                 //newcat[8] = je.getAsJsonArray().get(i).getAsJsonObject().get("uom").getAsString();
                 newcat[9] = je.getAsJsonArray().get(i).getAsJsonObject().get("reference").getAsString();
                 newcat[10] = je.getAsJsonArray().get(i).getAsJsonObject().get("barcode").getAsString();
-                newcat[11] = je.getAsJsonArray().get(i).getAsJsonObject().get("category").getAsString();
+                newcat[11] = category;
                 newcat[12] = je.getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString();
                 newcat[13] = "001";
                 newcat[14] = je.getAsJsonArray().get(i).getAsJsonObject().get("buyprice").getAsDouble();
                 newcat[15] = je.getAsJsonArray().get(i).getAsJsonObject().get("sellprice").getAsDouble();
                 
                 newcat[16]="0";
-                
-                
-                try {
-                    Double qtyOnHand= je.getAsJsonArray().get(i).getAsJsonObject().get("locations").getAsJsonArray().get(0).getAsJsonObject().get("qtyOnHand").getAsDouble();
-                    System.out.println(qtyOnHand);
-                    dlSales.createProducts(newcat);
-                    Object[] newProductsCat = new Object[2];
-                    newProductsCat[0] = id;
-                    newProductsCat[1] = id;
-                    dlSales.createProductsCat(newProductsCat);
-                    Object[] newStockCurrent=new Object[4];
-                    newStockCurrent[0]=id;
-                    newStockCurrent[1]=qtyOnHand;
-                    newStockCurrent[2]=id;
-                    newStockCurrent[3]=qtyOnHand;
-                    dlSales.createStockCurrent(newStockCurrent);
-                } catch (BasicException ex) {
-                    Logger.getLogger(ProductsEditor.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.println("Category ==> "+category);
+                if(!"".equals(category)){
+                    try {
+                        JsonElement lokasi=je.getAsJsonArray().get(i).getAsJsonObject().get("locations").getAsJsonArray();
+                        Double qtyOnHand;
+                        if(lokasi.getAsJsonArray().size()>0){
+                            qtyOnHand= je.getAsJsonArray().get(i).getAsJsonObject().get("locations").getAsJsonArray().get(0).getAsJsonObject().get("qtyOnHand").getAsDouble();
+                        }else{
+                            qtyOnHand=0.0;
+                        }
+                        
+                        System.out.println(qtyOnHand);
+                        dlSales.createProducts(newcat);
+                        Object[] newProductsCat = new Object[2];
+                        newProductsCat[0] = id;
+                        newProductsCat[1] = id;
+                        dlSales.createProductsCat(newProductsCat);
+                        Object[] newStockCurrent=new Object[4];
+                        newStockCurrent[0]=id;
+                        newStockCurrent[1]=qtyOnHand;
+                        newStockCurrent[2]=id;
+                        newStockCurrent[3]=qtyOnHand;
+                        dlSales.createStockCurrent(newStockCurrent);
+                    } catch (BasicException ex) {
+                        Logger.getLogger(ProductsEditor.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
+                
             
         }
   
