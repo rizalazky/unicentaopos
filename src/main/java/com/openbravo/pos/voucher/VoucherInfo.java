@@ -23,6 +23,7 @@ import com.openbravo.basic.BasicException;
 import com.openbravo.data.loader.DataRead;
 import com.openbravo.data.loader.IKeyed;
 import com.openbravo.data.loader.SerializerRead;
+import java.util.Date;
 
 
 public class VoucherInfo implements IKeyed {
@@ -31,6 +32,7 @@ public class VoucherInfo implements IKeyed {
     private String customerName;
     private double amount;
     private String status;
+    private String expired_date;
 
     public VoucherInfo() {
     }
@@ -40,7 +42,8 @@ public class VoucherInfo implements IKeyed {
         String voucherNumber, 
         String customerName,
         double amount, 
-        String status) 
+        String status,
+        String expired_date) 
     {
         this.id = id;
         this.voucherNumber = voucherNumber;
@@ -130,6 +133,18 @@ public class VoucherInfo implements IKeyed {
     public void setStatus(String status) {
         this.status = status;
     }
+    
+    public String getExpiredDate() {
+        return expired_date;
+    }
+
+    /**
+     * @param expired_date
+     * 
+     */
+    public void setExpiredDate(String expired_date) {
+        this.expired_date = expired_date;
+    }
 
     public static SerializerRead getSerializerRead() {
         return new SerializerRead() 
@@ -141,7 +156,9 @@ public class VoucherInfo implements IKeyed {
                     dr.getString(2), 
                     dr.getString(3),
                     dr.getDouble(4),
-                    dr.getString(5));            
+                    dr.getString(5),
+                    dr.getString(6)
+            );            
         }};
     }    
 }

@@ -284,7 +284,7 @@ public class DataLogicSales extends BeanFactoryDataSingle {
         );
         
         m_updateProducts = new StaticSentence(s,
-                "UPDAT products SET REFERENCE=?, CODE=?, CATEGORY=?,NAME=? , taxcat=?,pricebuy=?,pricesell=?,uom=? "
+                "UPDATE products SET REFERENCE=?, CODE=?, CATEGORY=?,NAME=? , taxcat=?,pricebuy=?,pricesell=?,uom=? "
                         + "WHERE ID=?"
                 , new SerializerWriteBasic(new Datas[]{
                 Datas.STRING,

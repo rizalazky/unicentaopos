@@ -26,6 +26,11 @@ import com.alee.extended.time.WebClock;
 import com.alee.managers.notification.NotificationIcon;
 import com.alee.managers.notification.NotificationManager;
 import com.alee.managers.notification.WebNotification;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import com.openbravo.basic.BasicException;
 import com.openbravo.beans.JNumberPop;
 import com.openbravo.data.gui.ComboBoxValModel;
@@ -77,6 +82,10 @@ import java.util.*;
 import java.util.function.BiConsumer;
 
 import static java.awt.Window.getWindows;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -177,7 +186,12 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
    */
   @Override
   public void init(AppView app) throws BeanFactoryException {
-
+      m_jTicketId.setFont(new java.awt.Font("Arial", 1, 20));
+      m_jTotalEuros.setMaximumSize(new java.awt.Dimension(250, 25));
+    m_jTotalEuros.setMinimumSize(new java.awt.Dimension(200, 25));
+    m_jTotalEuros.setPreferredSize(new java.awt.Dimension(200, 25));
+    m_jSubtotalEuros.setPreferredSize(new java.awt.Dimension(200, 25));
+    
     m_config = new AppConfig(new File((System.getProperty("user.home")), AppLocal.APP_ID + ".properties"));
     m_config.load();
 
@@ -230,6 +244,8 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
     }
 
     m_ticketlines = new JTicketLines(dlSystem.getResourceAsXML("Ticket.Line"));
+    //abogoboga
+    m_ticketlines.setFont(new java.awt.Font("Arial", 0, 20));
     m_jPanelCentral.add(m_ticketlines, java.awt.BorderLayout.CENTER);
     m_TTP = new TicketParser(m_App.getDeviceTicket(), dlSystem);
     catcontainer.add(getSouthComponent(), BorderLayout.CENTER);
@@ -583,6 +599,7 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
 
     if (m_oTicket == null) {
       m_jTicketId.setText(null);
+//      m_jTicketId.setFont(font);
       m_ticketlines.clearTicketLines();
 
       m_jSubtotalEuros.setText(null);
@@ -1785,10 +1802,172 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
       }
     }
   }
+  
+   private String postDataToNetsuite(TicketInfo ticket) throws BasicException{
+      if (ticket.getTicketId() == 0) {
+         
+        switch (ticket.getTicketType()) {
+            case TicketInfo.RECEIPT_NORMAL:
+                ticket.setTicketId(dlSales.getNextTicketIndex());
+                break;
+            case TicketInfo.RECEIPT_REFUND:
+                ticket.setTicketId(dlSales.getNextTicketRefundIndex());
+                break;
+            case TicketInfo.RECEIPT_PAYMENT:
+                ticket.setTicketId(dlSales.getNextTicketPaymentIndex());
+                break;
+            case TicketInfo.RECEIPT_NOSALE:
+                ticket.setTicketId(dlSales.getNextTicketPaymentIndex());
+                break;
+            default:
+                throw new BasicException();
+        }
+    }
+      LocalDate now = LocalDate.now();
+      DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+
+        String formattedDate = now.format(myFormatObj);
+      JsonObject data=new JsonObject();
+      data.addProperty("type","create_cash_sale");
+      JsonObject objItems=new JsonObject();
+      objItems.addProperty("id", ticket.getId());
+      objItems.addProperty("id_customer", ticket.getCustomerId());
+      objItems.addProperty("name_customer",ticket.getCustomerId());
+//      objItems.addProperty("trandate",ticket.getDate().toString());
+      objItems.addProperty("trandate",formattedDate);
+        
+      objItems.addProperty("location_id", "1");
+      objItems.addProperty("postingperiod", "");
+      objItems.addProperty("departement", "3");
+      objItems.addProperty("class_cash", "");
+      objItems.addProperty("discountitem", "");
+      objItems.addProperty("rate_sq", "");
+      objItems.addProperty("salesrep", "");//harus integrasi dari netsuite ??
+      objItems.addProperty("enddate", "");
+      objItems.addProperty("check_cash", ticket.getTicketId());
+      objItems.addProperty("partner", "");
+      JsonArray listProductIdArray=new JsonArray();
+      JsonArray listProductPriceArray=new JsonArray();
+      JsonArray listProductQtyArray=new JsonArray();
+      JsonArray listProductAmountArray=new JsonArray();
+      JsonArray listProductRateArray=new JsonArray();
+      JsonArray listTaxcodeArray=new JsonArray();
+      JsonArray listTaxrateArray=new JsonArray();
+      JsonArray listTaxAmtArray=new JsonArray();
+      JsonArray listProductGrossAmountArray=new JsonArray();
+      JsonArray listProductUnitArray=new JsonArray();
+      JsonArray listLocationArray=new JsonArray();
+      double totalAmount=0;
+      double totalPrice=0;
+        for (int i = 0; i < ticket.getLinesCount(); i++) {
+            if (ticket.getLine(i).getProductID() != null)  {
+//                listProductIdArray.add(new JsonPrimitive(ticket.getLine(i).getProductID()));
+                listProductIdArray.add(new JsonPrimitive("184"));
+                listProductPriceArray.add(new JsonPrimitive("-1"));
+                listProductQtyArray.add(new JsonPrimitive(ticket.getLine(i).getMultiply()));
+                listProductAmountArray.add(new JsonPrimitive(ticket.getLine(i).getSubValue()));
+                listProductRateArray.add(new JsonPrimitive(ticket.getLine(i).getPrice()));
+                listTaxcodeArray.add(new JsonPrimitive("5"));
+                listTaxrateArray.add(new JsonPrimitive(ticket.getLine(i).getTaxRate() * 100));
+                listTaxAmtArray.add(new JsonPrimitive(""));
+                listProductGrossAmountArray.add(new JsonPrimitive(""));
+                listProductUnitArray.add(new JsonPrimitive(""));
+                listLocationArray.add(new JsonPrimitive("1"));
+                totalAmount+=ticket.getLine(i).getValue();
+                totalPrice+=ticket.getLine(i).getPrice();
+            }
+        }
+//        liast list payment method
+        double totalAmountMinus=totalAmount * -1;
+        double totalPriceMinus=totalAmount * -1;
+        ticket.getPayments().forEach((p)->{
+            System.out.println("Payment Name==>"+p.getName()+"|| Paid ==>"+p.getPaid()+"|| Total ==>"+p.getTotal());
+            String paymentType;
+            switch (p.getName()) {
+                case "cash":
+                    paymentType="169";
+                    break;
+                case "bank":
+                    paymentType="170";
+                    break;
+                case "ovo":
+                    paymentType="172";
+                    break;
+                case "dana":
+                    paymentType="169";//belum ada item
+                    break;
+                case "qris":
+                    paymentType="169";//belum ada item
+                    break;
+                case "gopay":
+                    paymentType="171";
+                    break;
+                case "voucher":
+                    paymentType="169";//belum ada item
+                    break;
+                case "debit":
+                    paymentType="174";
+                    break;
+                case "card":
+                    paymentType="169";//belum ada item
+                    break;
+                default:
+                    paymentType="169";
+            }
+            listProductIdArray.add(new JsonPrimitive(paymentType));
+            listProductPriceArray.add(new JsonPrimitive("-1"));
+            listProductQtyArray.add(new JsonPrimitive(""));
+            listProductAmountArray.add(new JsonPrimitive(p.getTotal()*-1));
+            listProductRateArray.add(new JsonPrimitive(""));
+            listTaxcodeArray.add(new JsonPrimitive("5"));
+            listTaxrateArray.add(new JsonPrimitive(0));
+            listTaxAmtArray.add(new JsonPrimitive(""));
+            listProductGrossAmountArray.add(new JsonPrimitive(p.getTotal()*-1));
+            listProductUnitArray.add(new JsonPrimitive(""));
+            listLocationArray.add(new JsonPrimitive("1"));
+        });
+        
+      System.out.println(listProductIdArray.toString());
+      JsonObject objItemsDetail=new JsonObject();
+      JsonObject dataLength=new JsonObject();
+      dataLength.addProperty("length_items",listProductIdArray.size());
+      objItemsDetail.add("data_length",dataLength);
+      objItemsDetail.add("item_item",listProductIdArray);
+      objItemsDetail.add("item_quantity",listProductQtyArray);
+      objItemsDetail.add("item_rate",listProductRateArray);
+      objItemsDetail.add("item_amount",listProductAmountArray);
+      objItemsDetail.add("item_taxcode",listTaxcodeArray);
+      objItemsDetail.add("item_taxrate1",listTaxrateArray);
+      objItemsDetail.add("item_tax1amt",listTaxAmtArray);
+      objItemsDetail.add("item_grossamt",listProductGrossAmountArray);
+      objItemsDetail.add("item_units",listProductUnitArray);
+      objItemsDetail.add("item_price",listProductPriceArray);
+      objItemsDetail.add("item_location",listLocationArray);
+      
+      JsonObject paymentMethod=new JsonObject();
+      
+      data.add("objItems",objItems);
+      data.add("objItemsDetail",objItemsDetail);
+      data.add("paymentMethods",paymentMethod);
+      
+      TokenBasedAuth tokenBasedAuth=new com.openbravo.pos.forms.TokenBasedAuth();
+      String responseString="";
+      try {
+          responseString = tokenBasedAuth.postToNetsuite(data);
+          System.out.println("response dari netsuite ==> "+responseString);
+      } catch (IOException ex) {
+          Logger.getLogger(JPanelTicket.class.getName()).log(Level.SEVERE, null, ex);
+      }
+     
+      
+      JsonElement je = new JsonParser().parse(responseString);
+      String Message=je.getAsJsonObject().get("status").getAsString();
+      return Message;
+  }
 
 
   private boolean closeTicket(TicketInfo ticket, Object ticketext) {
-    if (listener != null) {
+   if (listener != null) {
       listener.stop();
     }
     boolean resultok = false;
@@ -1829,6 +2008,12 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
             if (executeEvent(ticket, ticketext, "ticket.save") == null) {
 
               try {
+                System.out.println("Halo Save Ticket");
+//                method postToNetsuite
+                String cekStatusPostToNs=postDataToNetsuite(ticket);
+                System.out.println(cekStatusPostToNs+" ==>Balikan Dari Method");
+                boolean statusPosToNs="OK".equals(cekStatusPostToNs) ? true:false;
+                
                 dlSales.saveTicket(ticket, m_App.getInventoryLocation());
                 m_config.setProperty("lastticket.number", Integer.toString(ticket.getTicketId()));
                 m_config.setProperty("lastticket.type", Integer.toString(ticket.getTicketType()));

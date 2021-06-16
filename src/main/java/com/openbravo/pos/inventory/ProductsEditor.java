@@ -213,7 +213,7 @@ public final class ProductsEditor extends javax.swing.JPanel implements EditorRe
   public void productsInit() throws IOException{
       TokenBasedAuth tokenBasedAuth=new com.openbravo.pos.forms.TokenBasedAuth();
       String responseString=tokenBasedAuth.getMasterProducts();
-      System.out.println("test response"+responseString);
+      System.out.println("ressponse Product"+responseString);
       JsonElement je = new JsonParser().parse(responseString);
       int jsonLength=je.getAsJsonArray().size();
     

@@ -365,7 +365,16 @@ public class DataLogicCustomers extends BeanFactoryDataSingle {
                   "WHERE STATUS='A' AND vouchers.ID=?" 
 		, SerializerWriteString.INSTANCE
 		, VoucherInfo.getSerializerRead()).find(id);
-    }
+        }
+        
+        public final VoucherInfo getVoucherInfoByNumber(String voucherNumber) throws BasicException {
+            return (VoucherInfo) new PreparedSentence(s
+                , "SELECT vouchers.ID, vouchers.VOUCHER_NUMBER, vouchers.CUSTOMER,  vouchers.AMOUNT, vouchers.STATUS,vouchers.expired_date " +
+                  "FROM vouchers " +
+                  "WHERE vouchers.STATUS='A' AND vouchers.VOUCHER_NUMBER=?" 
+		, SerializerWriteString.INSTANCE
+		, VoucherInfo.getSerializerRead()).find(voucherNumber);
+        }
           
         public final VoucherInfo getVoucherInfoAll(String id) throws BasicException {
             return (VoucherInfo) new PreparedSentence(s

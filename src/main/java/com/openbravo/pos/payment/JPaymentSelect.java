@@ -53,7 +53,7 @@ public abstract class JPaymentSelect extends javax.swing.JDialog
     private double m_dTotal;
     private CustomerInfoExt customerext;
     private DataLogicSystem dlSystem;
-    private DataLogicCustomers dlCustomers    ;
+    private DataLogicCustomers dlCustomers;
     DataLogicSales dlSales;
 
     // JG 16 May 12 use diamond inference
@@ -84,9 +84,9 @@ public abstract class JPaymentSelect extends javax.swing.JDialog
     protected JPaymentSelect(java.awt.Frame parent, boolean modal, ComponentOrientation o) {
         super(parent, modal);
         initComponents();
+        
         this.applyComponentOrientation(o);
         getRootPane().setDefaultButton(m_jButtonOK);
-
     }
 
     /** Creates new form JPaymentSelect
@@ -218,14 +218,16 @@ public abstract class JPaymentSelect extends javax.swing.JDialog
 
     protected void addTabPayment(JPaymentCreator jpay) {
         if (app.getAppUserView().getUser().hasPermission(jpay.getKey())) {
-
+            
             JPaymentInterface jpayinterface = payments.get(jpay.getKey());
             if (jpayinterface == null) {
                 jpayinterface = jpay.createJPayment();
                 payments.put(jpay.getKey(), jpayinterface);
             }
-
             jpayinterface.getComponent().applyComponentOrientation(getComponentOrientation());
+//            JLabel tabLabel = new JLabel(AppLocal.getIntString(jpay.getLabelKey()), JLabel.CENTER);
+//add new label at set location
+            
             m_jTabPayment.addTab(
                     AppLocal.getIntString(jpay.getLabelKey()),
                     new javax.swing.ImageIcon(getClass().getResource(jpay.getIconKey())),
@@ -256,6 +258,8 @@ public abstract class JPaymentSelect extends javax.swing.JDialog
         public String getIconKey() {
             return "/com/openbravo/images/cash.png"; }
     }
+    
+    
 
     public class JPaymentChequeCreator implements JPaymentCreator {
         @Override
@@ -272,11 +276,12 @@ public abstract class JPaymentSelect extends javax.swing.JDialog
         public String getIconKey() {
             return "/com/openbravo/images/cheque.png"; }
     }
+    
 
     public class JPaymentVoucherCreator implements JPaymentCreator {
         @Override
         public JPaymentInterface createJPayment() {
-            return new JPaymentVoucher(app, JPaymentSelect.this, "voucherin");
+            return new JPaymentVoucherNew(app,JPaymentSelect.this, "voucher");
         }
         @Override
         public String getKey() {
@@ -457,11 +462,107 @@ public abstract class JPaymentSelect extends javax.swing.JDialog
             return "/com/openbravo/images/bank.png";
         }
     }
+    
+    public class JPaymentOvoCreator implements JPaymentCreator {
+        @Override
+        public JPaymentInterface createJPayment() {
+            return new JPaymentOvo(JPaymentSelect.this,"ovo");
+        }
+        @Override
+        public String getKey() {
+            return "payment.ovo";
+        }
+        @Override
+        public String getLabelKey() {
+            return "tab.ovo";
+        }
+        @Override
+        public String getIconKey() {
+            return "/com/openbravo/images/bank.png";
+        }
+    }
+    
+    
+    public class JPaymentVirtualAccounCreator implements JPaymentCreator {
+        @Override
+        public JPaymentInterface createJPayment() {
+            return new JPaymentVirtualAccount(JPaymentSelect.this,"VirtualAccount");
+        }
+        @Override
+        public String getKey() {
+            return "payment.VirtualAccount";
+        }
+        @Override
+        public String getLabelKey() {
+            return "tab.VirtualAccount";
+        }
+        @Override
+        public String getIconKey() {
+            return "/com/openbravo/images/bank.png";
+        }
+    }
+    public class JPaymentDanaCreator implements JPaymentCreator {
+        @Override
+        public JPaymentInterface createJPayment() {
+            return new JPaymentOvo(JPaymentSelect.this,"dana");
+        }
+        @Override
+        public String getKey() {
+            return "payment.dana";
+        }
+        @Override
+        public String getLabelKey() {
+            return "tab.dana";
+        }
+        @Override
+        public String getIconKey() {
+            return "/com/openbravo/images/bank.png";
+        }
+    }
+    
+    public class JPaymentQrisCreator implements JPaymentCreator {
+        @Override
+        public JPaymentInterface createJPayment() {
+            return new JPaymentOvo(JPaymentSelect.this,"qris");
+        }
+        @Override
+        public String getKey() {
+            return "payment.qris";
+        }
+        @Override
+        public String getLabelKey() {
+            return "tab.qris";
+        }
+        @Override
+        public String getIconKey() {
+            return "/com/openbravo/images/bank.png";
+        }
+    }
+    
+     public class JPaymentGopayCreator implements JPaymentCreator {
+        @Override
+        public JPaymentInterface createJPayment() {
+            return new JPaymentOvo(JPaymentSelect.this,"gopay");
+        }
+        @Override
+        public String getKey() {
+            return "payment.gopay";
+        }
+        @Override
+        public String getLabelKey() {
+            return "tab.gopay";
+        }
+        @Override
+        public String getIconKey() {
+            return "/com/openbravo/images/bank.png";
+        }
+    }
 
     public class JPaymentSlipCreator implements JPaymentCreator {
         @Override
+        
         public JPaymentInterface createJPayment() {
-            return new JPaymentSlip(JPaymentSelect.this);
+            return new JPaymentEWallet(app, JPaymentSelect.this, "voucherin");
         }
         @Override
         public String getKey() {
@@ -469,7 +570,7 @@ public abstract class JPaymentSelect extends javax.swing.JDialog
         }
         @Override
         public String getLabelKey() {
-            return "tab.slip";
+            return "tab.wallet";
         }
         @Override
         public String getIconKey() {
@@ -586,42 +687,45 @@ public abstract class JPaymentSelect extends javax.swing.JDialog
         org.jdesktop.layout.GroupLayout jPanel4Layout = new org.jdesktop.layout.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
-                jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                        .add(jPanel4Layout.createSequentialGroup()
-                                .add(5, 5, 5)
-                                .add(m_jLblTotalEuros1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                                .add(m_jTotalEuros, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                                .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                        .add(jPanel6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                        .add(jPanel4Layout.createSequentialGroup()
-                                                .add(m_jLblRemainingEuros, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 120, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                                .add(m_jRemaininglEuros, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                                .add(18, 18, 18)
-                                .add(m_jButtonAdd, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(m_jButtonRemove, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .add(4, 4, 4))
+            jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(jPanel4Layout.createSequentialGroup()
+                .add(5, 5, 5)
+                .add(m_jLblTotalEuros1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(m_jTotalEuros, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 180, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(jPanel4Layout.createSequentialGroup()
+                        .add(27, 27, 27)
+                        .add(jPanel6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .add(jPanel4Layout.createSequentialGroup()
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(m_jLblRemainingEuros, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 155, Short.MAX_VALUE)
+                        .add(10, 10, 10)
+                        .add(m_jRemaininglEuros, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 179, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(18, 18, 18)))
+                .add(m_jButtonAdd, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(18, 18, 18)
+                .add(m_jButtonRemove, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
         jPanel4Layout.setVerticalGroup(
-                jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                        .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel4Layout.createSequentialGroup()
-                                .add(0, 0, Short.MAX_VALUE)
-                                .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                        .add(org.jdesktop.layout.GroupLayout.TRAILING, m_jButtonRemove, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                        .add(org.jdesktop.layout.GroupLayout.TRAILING, m_jButtonAdd, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                        .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel4Layout.createSequentialGroup()
-                                .add(5, 5, 5)
-                                .add(jPanel6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                        .add(m_jLblTotalEuros1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                        .add(m_jRemaininglEuros, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                        .add(m_jLblRemainingEuros, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                        .add(m_jTotalEuros, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                                .addContainerGap())
+            jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel4Layout.createSequentialGroup()
+                .add(0, 0, Short.MAX_VALUE)
+                .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, m_jButtonRemove, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, m_jButtonAdd, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel4Layout.createSequentialGroup()
+                .add(5, 5, 5)
+                .add(jPanel6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(m_jLblTotalEuros1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(m_jRemaininglEuros, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(m_jLblRemainingEuros, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(m_jTotalEuros, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
         );
 
         getContentPane().add(jPanel4, java.awt.BorderLayout.NORTH);
@@ -649,7 +753,7 @@ public abstract class JPaymentSelect extends javax.swing.JDialog
 
         jPanel5.setLayout(new java.awt.BorderLayout());
 
-        m_jButtonCancel.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        m_jButtonCancel.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         m_jButtonCancel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/openbravo/images/cancel.png"))); // NOI18N
         m_jButtonCancel.setText(AppLocal.getIntString("button.cancel")); // NOI18N
         m_jButtonCancel.setFocusPainted(false);
@@ -705,7 +809,7 @@ public abstract class JPaymentSelect extends javax.swing.JDialog
 
         getContentPane().add(jPanel5, java.awt.BorderLayout.SOUTH);
 
-        setSize(new java.awt.Dimension(758, 497));
+        setSize(new java.awt.Dimension(846, 519));
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 

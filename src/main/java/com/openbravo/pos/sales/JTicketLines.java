@@ -91,14 +91,17 @@ public class JTicketLines extends javax.swing.JPanel {
         for (int i = 0; i < acolumns.length; i++) {
             jColumns.getColumn(i).setPreferredWidth(acolumns[i].width);
             jColumns.getColumn(i).setResizable(false);
+            
         }       
         
         m_jScrollTableTicket.getVerticalScrollBar().setPreferredSize(new Dimension(35, 35));
        
       // set font for headers
-        Font f = new Font("Arial", Font.BOLD, 14);
+        Font f = new Font("Arial", Font.BOLD, 16);
         JTableHeader header = m_jTicketTable.getTableHeader();
         header.setFont(f);
+        
+//        m_jTicketTable.setFont(f);
       
 /*
  * Starting point for SORTING the current table model & view
@@ -122,6 +125,8 @@ public class JTicketLines extends javax.swing.JPanel {
         m_jTicketTable.setDefaultRenderer(Object.class, new TicketCellRenderer(acolumns));
         
         m_jTicketTable.setRowHeight(40);
+//        m_jTicketTable.setFont(new Font("Arial",Font.BOLD,16));
+//        m_jScrollTableTicket.setFont(new Font("Arial",Font.BOLD,16));
         m_jTicketTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION); 
         
         m_jTableModel.clear();
@@ -277,7 +282,7 @@ public class JTicketLines extends javax.swing.JPanel {
             aux.setVerticalAlignment(javax.swing.SwingConstants.TOP);
             aux.setHorizontalAlignment(m_acolumns[column].align);
             Font fName =aux.getFont();
-            aux.setFont(new Font(fName.getName(),Font.PLAIN,14));
+            aux.setFont(new Font(fName.getName(),Font.PLAIN,20));
  
             return aux;
         }

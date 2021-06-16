@@ -69,6 +69,7 @@ public class JPaymentSelectRefund extends JPaymentSelect {
         addTabPayment(new JPaymentSelect.JPaymentVoucherRefundCreator());
         addTabPayment(new JPaymentSelect.JPaymentMagcardRefundCreator());
         addTabPayment(new JPaymentSelect.JPaymentDebtRefundCreator());
+        addTabPayment(new JPaymentSelect.JPaymentOvoCreator());
 //        setHeaderVisible(false);
     }
     

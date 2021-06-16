@@ -47,7 +47,7 @@ public class JPaymentCheque extends javax.swing.JPanel implements JPaymentInterf
         m_notifier = notifier;
         
         initComponents();  
-        
+        m_jTendered.setVisible(false);
         m_jTendered.addPropertyChangeListener("Edition", new RecalculateState());
         m_jTendered.addEditorKeys(m_jKeys);
         

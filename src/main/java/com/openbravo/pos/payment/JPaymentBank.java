@@ -18,6 +18,7 @@
 //    along with uniCenta oPOS.  If not, see <http://www.gnu.org/licenses/>.
 
 package com.openbravo.pos.payment;
+import com.openbravo.data.gui.ComboBoxValModel;
 import com.openbravo.format.Formats;
 import com.openbravo.pos.customers.CustomerInfoExt;
 import com.openbravo.pos.forms.AppLocal;
@@ -25,6 +26,7 @@ import com.openbravo.pos.util.RoundUtils;
 import java.awt.Component;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.List;
 
 /**
  *
@@ -33,7 +35,7 @@ import java.beans.PropertyChangeListener;
 public class JPaymentBank extends javax.swing.JPanel implements JPaymentInterface {
     
     private JPaymentNotifier m_notifier;
-
+    private ComboBoxValModel m_BankModel;
     private double m_dPaid;
     private double m_dTotal;
     
@@ -44,7 +46,7 @@ public class JPaymentBank extends javax.swing.JPanel implements JPaymentInterfac
         m_notifier = notifier;
         
         initComponents();  
-        
+        m_jTendered.setVisible(false);
         m_jTendered.addPropertyChangeListener("Edition", new RecalculateState());
         m_jTendered.addEditorKeys(m_jKeys);
         
@@ -63,7 +65,18 @@ public class JPaymentBank extends javax.swing.JPanel implements JPaymentInterfac
         
         m_dTotal = dTotal;
         
-        
+//        m_BankModel = new ComboBoxValModel();
+//        List a = null;
+//        a.add("BCA");
+//        a.add("Mandiri");
+//        m_BankModel = new ComboBoxValModel((value) -> {
+//            return null; //To change body of generated lambdas, choose Tools | Templates.
+//        });
+//        jComboBoxBankAccount.setModel(m_BankModel);
+//        
+        jComboBoxBankAccount.removeAllItems();
+        jComboBoxBankAccount.addItem("BCA");
+        jComboBoxBankAccount.addItem("Mandiri");
         m_jTendered.reset();
         m_jTendered.activate();
         
@@ -129,6 +142,8 @@ public class JPaymentBank extends javax.swing.JPanel implements JPaymentInterfac
         jPanel4 = new javax.swing.JPanel();
         jLabel8 = new javax.swing.JLabel();
         m_jMoneyEuros = new javax.swing.JLabel();
+        jLblBankption = new javax.swing.JLabel();
+        jComboBoxBankAccount = new javax.swing.JComboBox<>();
 
         setLayout(new java.awt.BorderLayout());
 
@@ -167,12 +182,22 @@ public class JPaymentBank extends javax.swing.JPanel implements JPaymentInterfac
         jPanel4.add(m_jMoneyEuros);
         m_jMoneyEuros.setBounds(120, 4, 180, 30);
 
+        jLblBankption.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        jLblBankption.setText("Bank");
+        jPanel4.add(jLblBankption);
+        jLblBankption.setBounds(10, 46, 90, 30);
+
+        jPanel4.add(jComboBoxBankAccount);
+        jComboBoxBankAccount.setBounds(120, 50, 180, 30);
+
         add(jPanel4, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JComboBox<String> jComboBoxBankAccount;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLblBankption;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;

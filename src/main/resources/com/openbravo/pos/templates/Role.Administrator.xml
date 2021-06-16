@@ -50,6 +50,11 @@
     <class name="refund.magcard"/>
     <class name="refund.voucher"/>
     <class name="refund.debt"/>
+    <class name="payment.ovo"/>
+    <class name="payment.dana"/>
+    <class name="payment.qris"/>
+    <class name="payment.gopay"/>
+    <class name="payment.VirtualAccount"/>
     <class name="sales.ChangeTaxOptions"/>
     <class name="sales.DeleteLines"/>
     <class name="sales.DeleteTicket"/> 
