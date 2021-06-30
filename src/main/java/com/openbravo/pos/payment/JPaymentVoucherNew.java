@@ -189,7 +189,7 @@ public class JPaymentVoucherNew extends javax.swing.JPanel implements JPaymentIn
         jLabel8.setText(AppLocal.getIntString("label.InputCash")); // NOI18N
         jLabel8.setPreferredSize(new java.awt.Dimension(100, 30));
         jPanel4.add(jLabel8);
-        jLabel8.setBounds(10, 4, 100, 30);
+        jLabel8.setBounds(20, 230, 100, 30);
 
         m_jMoneyEuros.setBackground(new java.awt.Color(204, 255, 51));
         m_jMoneyEuros.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
@@ -198,32 +198,45 @@ public class JPaymentVoucherNew extends javax.swing.JPanel implements JPaymentIn
         m_jMoneyEuros.setOpaque(true);
         m_jMoneyEuros.setPreferredSize(new java.awt.Dimension(180, 30));
         jPanel4.add(m_jMoneyEuros);
-        m_jMoneyEuros.setBounds(120, 4, 180, 30);
+        m_jMoneyEuros.setBounds(170, 230, 180, 30);
 
+        jLabel1.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jLabel1.setText("Voucher");
         jPanel4.add(jLabel1);
-        jLabel1.setBounds(10, 60, 90, 30);
-        jPanel4.add(jTextField1);
-        jTextField1.setBounds(120, 110, 170, 30);
+        jLabel1.setBounds(10, 20, 90, 30);
 
+        jTextField1.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        jPanel4.add(jTextField1);
+        jTextField1.setBounds(170, 70, 210, 30);
+
+        jLabel2.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jLabel2.setText("Nilai Voucher");
         jPanel4.add(jLabel2);
-        jLabel2.setBounds(10, 110, 100, 30);
-        jPanel4.add(jTextField2);
-        jTextField2.setBounds(120, 60, 110, 30);
+        jLabel2.setBounds(10, 70, 130, 30);
 
+        jTextField2.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        jPanel4.add(jTextField2);
+        jTextField2.setBounds(170, 20, 130, 30);
+
+        jLabel3.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jLabel3.setText("Dibeli Oleh");
         jPanel4.add(jLabel3);
-        jLabel3.setBounds(10, 160, 100, 30);
-        jPanel4.add(jTextField3);
-        jTextField3.setBounds(120, 160, 170, 30);
+        jLabel3.setBounds(10, 120, 100, 30);
 
+        jTextField3.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        jPanel4.add(jTextField3);
+        jTextField3.setBounds(170, 120, 210, 30);
+
+        jLabel4.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jLabel4.setText("Berlaku Sampai");
         jPanel4.add(jLabel4);
-        jLabel4.setBounds(10, 210, 100, 30);
-        jPanel4.add(jTextField4);
-        jTextField4.setBounds(120, 210, 170, 30);
+        jLabel4.setBounds(10, 170, 150, 30);
 
+        jTextField4.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        jPanel4.add(jTextField4);
+        jTextField4.setBounds(170, 170, 210, 30);
+
+        jButton1.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jButton1.setText("Cari");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -231,7 +244,7 @@ public class JPaymentVoucherNew extends javax.swing.JPanel implements JPaymentIn
             }
         });
         jPanel4.add(jButton1);
-        jButton1.setBounds(240, 60, 60, 30);
+        jButton1.setBounds(310, 20, 80, 30);
 
         add(jPanel4, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
@@ -248,12 +261,15 @@ public class JPaymentVoucherNew extends javax.swing.JPanel implements JPaymentIn
                 m_sVoucher1 = m_voucherInfo1.getVoucherNumber();
                 Double valueVoucher=m_voucherInfo1.getAmount();
                 String customerName=m_voucherInfo1.getCustomerName();
-                String expiredDate=m_voucherInfo1.getExpiredDate();
+                Date expiredDate=m_voucherInfo1.getExpiredDate();
+                int hari=expiredDate.getDate();
+                int bulan=expiredDate.getMonth()+1;
+                int tahun=expiredDate.getYear()+1900;
                 System.out.println("Expired Date ==> "+expiredDate);
                 System.out.println(valueVoucher);
                 jTextField1.setText(Formats.CURRENCY.formatValue(valueVoucher));
                 jTextField3.setText(customerName);
-                jTextField4.setText(expiredDate);
+                jTextField4.setText(hari+"-"+(bulan < 10 ? "0"+bulan : bulan)+"-"+tahun);
             }else{
                 System.out.println("Error");
             }

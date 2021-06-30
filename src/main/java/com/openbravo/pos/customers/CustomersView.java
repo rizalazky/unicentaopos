@@ -128,7 +128,7 @@ public final class CustomersView extends javax.swing.JPanel implements EditorRec
     }
     
     public void customersInit() throws IOException{
-      TokenBasedAuth tokenBasedAuth=new com.openbravo.pos.forms.TokenBasedAuth();
+      TokenBasedAuth tokenBasedAuth=new com.openbravo.pos.forms.TokenBasedAuth(this.appView);
       String responseString=tokenBasedAuth.getMasterCustomers();
       System.out.println("test response cs"+responseString);
       JsonElement je = new JsonParser().parse(responseString);

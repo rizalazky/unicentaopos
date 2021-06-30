@@ -36,6 +36,7 @@ import java.util.Locale;
 public class StartPOS {
 
   private StartPOS() {
+      System.out.println("Star Post");
   }
 
   public static boolean registerApp() {

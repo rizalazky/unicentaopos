@@ -19,6 +19,7 @@
 
 package com.openbravo.pos.payment;
 
+import com.openbravo.pos.forms.AppView;
 import java.awt.*;
 
 /**
@@ -62,7 +63,7 @@ public class JPaymentSelectRefund extends JPaymentSelect {
      *
      */
     @Override
-    protected void addTabs() {
+    protected void addTabs(AppView app) {
         
         addTabPayment(new JPaymentSelect.JPaymentCashRefundCreator());
         addTabPayment(new JPaymentSelect.JPaymentChequeRefundCreator());

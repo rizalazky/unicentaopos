@@ -37,8 +37,9 @@ public class JCatalogTab extends javax.swing.JPanel {
     /** Creates new form JCategoryProducts */
     public JCatalogTab() {
         initComponents();
-
+        
         flowpanel = new JFlowPanel();
+        flowpanel.setFont(new java.awt.Font("Arial",0,18));
         JScrollPane scroll = new JScrollPane(flowpanel);
         scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
@@ -72,6 +73,7 @@ public class JCatalogTab extends javax.swing.JPanel {
 
             btn.setRequestFocusEnabled(false);
             btn.setHorizontalTextPosition(SwingConstants.CENTER);
+            btn.setFont(new java.awt.Font("Arial",0,30));
             btn.setVerticalTextPosition(SwingConstants.BOTTOM);
             btn.setMargin(new Insets(2, 2, 2, 2));
             btn.addActionListener(al);
@@ -87,7 +89,7 @@ public class JCatalogTab extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         setLayout(new java.awt.BorderLayout());
     }// </editor-fold>//GEN-END:initComponents
     

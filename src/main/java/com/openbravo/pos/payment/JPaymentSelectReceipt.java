@@ -19,7 +19,11 @@
 
 package com.openbravo.pos.payment;
 
+import com.openbravo.pos.forms.AppConfig;
+import com.openbravo.pos.forms.AppLocal;
+import com.openbravo.pos.forms.AppView;
 import java.awt.*;
+import java.io.File;
 
 /**
  *
@@ -62,7 +66,12 @@ public class JPaymentSelectReceipt extends JPaymentSelect {
      *
      */
     @Override
-    protected void addTabs() {
+    protected void addTabs(AppView app) {
+//        AppConfig m_config_host =  new AppConfig(new File((System.getProperty("user.home")),
+//         AppLocal.APP_ID + ".properties")); 
+//        m_config_host.load();
+//        String machineHostname =(m_config_host.getProperty("machine.hostname"));
+        
         addTabPayment(new JPaymentSelect.JPaymentMagcardCreator());
         addTabPayment(new JPaymentSelect.JPaymentCashCreator());
         addTabPayment(new JPaymentSelect.JPaymentBankCreator());
@@ -70,10 +79,11 @@ public class JPaymentSelectReceipt extends JPaymentSelect {
         addTabPayment(new JPaymentSelect.JPaymentGopayCreator());
         addTabPayment(new JPaymentSelect.JPaymentOvoCreator());
 //        addTabPayment(new JPaymentSelect.JPaymentChequeCreator());
-        addTabPayment(new JPaymentSelect.JPaymentVoucherCreator());            
+        addTabPayment(new JPaymentSelect.JPaymentVoucherCreator());
+//        addTabPayment(new JPaymentSelect.JPaymentHutangCreator());
                         
 //        addTabPayment(new JPaymentSelect.JPaymentFreeCreator());                
-//        addTabPayment(new JPaymentSelect.JPaymentDebtCreator());
+        addTabPayment(new JPaymentSelect.JPaymentDebtCreator());
 // JG Added 1 Dec 13 
                 
 //        addTabPayment(new JPaymentSelect.JPaymentSlipCreator());

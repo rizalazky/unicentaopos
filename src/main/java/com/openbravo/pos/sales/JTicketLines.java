@@ -97,7 +97,7 @@ public class JTicketLines extends javax.swing.JPanel {
         m_jScrollTableTicket.getVerticalScrollBar().setPreferredSize(new Dimension(35, 35));
        
       // set font for headers
-        Font f = new Font("Arial", Font.BOLD, 16);
+        Font f = new Font("Arial", Font.BOLD, 18);
         JTableHeader header = m_jTicketTable.getTableHeader();
         header.setFont(f);
         
@@ -124,7 +124,7 @@ public class JTicketLines extends javax.swing.JPanel {
 
         m_jTicketTable.setDefaultRenderer(Object.class, new TicketCellRenderer(acolumns));
         
-        m_jTicketTable.setRowHeight(40);
+        m_jTicketTable.setRowHeight(50);
 //        m_jTicketTable.setFont(new Font("Arial",Font.BOLD,16));
 //        m_jScrollTableTicket.setFont(new Font("Arial",Font.BOLD,16));
         m_jTicketTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION); 

@@ -200,8 +200,11 @@ public class DataLogicSales extends BeanFactoryDataSingle {
 
         m_createCat = new StaticSentence(s,
                 "INSERT INTO categories ( ID, NAME, CATSHOWNAME ) "
-                        + "VALUES (?, ?, ?)"
+                        + "VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE ID=?,NAME=?,CATSHOWNAME=?"
                 , new SerializerWriteBasic(new Datas[]{
+                Datas.STRING,
+                Datas.STRING,
+                Datas.BOOLEAN,
                 Datas.STRING,
                 Datas.STRING,
                 Datas.BOOLEAN})
@@ -261,8 +264,8 @@ public class DataLogicSales extends BeanFactoryDataSingle {
         
         
         m_createProducts = new StaticSentence(s,
-                "INSERT INTO products ( ID, REFERENCE, CODE, CATEGORY,NAME , taxcat,pricebuy,pricesell,uom) "
-                        + "VALUES (?, ?, ? ,? ,?,?,?,?,?) ON DUPLICATE KEY UPDATE REFERENCE=?, CODE=?, CATEGORY=?,NAME=? , taxcat=?,pricebuy=?,pricesell=?,uom=?"
+                "INSERT INTO products ( ID, REFERENCE, CODE, CATEGORY,NAME , taxcat,pricebuy,pricesell,uom,display) "
+                        + "VALUES (?, ?, ? ,? ,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE REFERENCE=?, CODE=?, CATEGORY=?,NAME=? , taxcat=?,pricebuy=?,pricesell=?,uom=?,display=?"
                 , new SerializerWriteBasic(new Datas[]{
                 Datas.STRING,
                 Datas.STRING,
@@ -278,8 +281,10 @@ public class DataLogicSales extends BeanFactoryDataSingle {
                 Datas.STRING,
                 Datas.STRING,
                 Datas.STRING,
+                Datas.STRING,
                 Datas.DOUBLE,
                 Datas.DOUBLE,
+                Datas.STRING,
                 Datas.STRING})
         );
         
@@ -298,7 +303,7 @@ public class DataLogicSales extends BeanFactoryDataSingle {
                 Datas.STRING})
         );
         
-        m_deleteAllCat= new StaticSentence(s, "DELETE FROM categories");
+        m_deleteAllCat= new StaticSentence(s, "UPDATE categories SET catshowname=0");
 //        Rizal Azky 17/05/2021 End
         m_createSupp = new StaticSentence(s,
                 "INSERT INTO suppliers ( ID, NAME, SEARCHKEY, VISIBLE ) "
@@ -340,7 +345,7 @@ public class DataLogicSales extends BeanFactoryDataSingle {
         m_updateProducts.exec(products);
     }
     
-    public final void deleteAllCategory() throws BasicException{
+    public final void updateAllCategory() throws BasicException{
         m_deleteAllCat.exec();
     }
     
@@ -597,6 +602,22 @@ public class DataLogicSales extends BeanFactoryDataSingle {
                 + "CATORDER "
                 + "FROM categories "
                 + "WHERE PARENTID IS NULL AND CATSHOWNAME = " + s.DB.TRUE() + " "
+                + "ORDER BY CATORDER, NAME"
+                , null
+                , CategoryInfo.getSerializerRead()).list();
+    }
+    
+    public final List<CategoryInfo> getRootCategoriesLaundry() throws BasicException {
+        return new PreparedSentence(s
+                , "SELECT "
+                + "ID, "
+                + "NAME, "
+                + "IMAGE, "
+                + "TEXTTIP, "
+                + "CATSHOWNAME, "
+                + "CATORDER "
+                + "FROM categories "
+                + "WHERE PARENTID IS NULL AND CATSHOWNAME = " + s.DB.TRUE() + " AND ID IN (7,8) "
                 + "ORDER BY CATORDER, NAME"
                 , null
                 , CategoryInfo.getSerializerRead()).list();
@@ -1811,8 +1832,8 @@ public class DataLogicSales extends BeanFactoryDataSingle {
                 SentenceExec ticketlineinsert = new PreparedSentence(s
                         , "INSERT INTO ticketlines (TICKET, LINE, "
                         + "PRODUCT, ATTRIBUTESETINSTANCE_ID, "
-                        + "UNITS, PRICE, TAXID, ATTRIBUTES) "
-                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+                        + "UNITS, PRICE, TAXID, ATTRIBUTES,UNITSPCS) "
+                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)"
                         , SerializerWriteBuilder.INSTANCE);
 
                 for (TicketLineInfo l : ticket.getLines()) {

@@ -171,7 +171,7 @@ public class JPaymentVirtualAccount extends javax.swing.JPanel implements JPayme
         m_jMoneyEuros.setOpaque(true);
         m_jMoneyEuros.setPreferredSize(new java.awt.Dimension(180, 30));
         jPanel4.add(m_jMoneyEuros);
-        m_jMoneyEuros.setBounds(190, 60, 180, 30);
+        m_jMoneyEuros.setBounds(180, 60, 160, 30);
 
         jLabel1.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jLabel1.setText("Kode Pembayaran");
@@ -180,7 +180,7 @@ public class JPaymentVirtualAccount extends javax.swing.JPanel implements JPayme
 
         jTextField1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel4.add(jTextField1);
-        jTextField1.setBounds(190, 20, 180, 30);
+        jTextField1.setBounds(180, 20, 160, 30);
 
         add(jPanel4, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents

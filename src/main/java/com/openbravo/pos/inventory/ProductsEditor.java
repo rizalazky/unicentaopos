@@ -134,7 +134,8 @@ public final class ProductsEditor extends javax.swing.JPanel implements EditorRe
     m_dlSuppliers = (DataLogicSuppliers) app.getBean("com.openbravo.pos.suppliers.DataLogicSuppliers");
 
     initComponents();
-    productsInit();
+    TokenBasedAuth tok=new TokenBasedAuth(appView);
+    tok.productsInit();
     loadimage = dlSales.getProductImage(); // JG 3 feb 16 speedup
 
     taxsent = dlSales.getTaxList();
@@ -210,68 +211,69 @@ public final class ProductsEditor extends javax.swing.JPanel implements EditorRe
     init();
   }
   
-  public void productsInit() throws IOException{
-      TokenBasedAuth tokenBasedAuth=new com.openbravo.pos.forms.TokenBasedAuth();
-      String responseString=tokenBasedAuth.getMasterProducts();
-      System.out.println("ressponse Product"+responseString);
-      JsonElement je = new JsonParser().parse(responseString);
-      int jsonLength=je.getAsJsonArray().size();
-    
-        for(int i=0;i<jsonLength;i++){
-                String id=je.getAsJsonArray().get(i).getAsJsonObject().get("id").getAsString();
-                String category=je.getAsJsonArray().get(i).getAsJsonObject().get("category").getAsString();;
-                Object[] newcat = new Object[17];
-                newcat[0] = id;
-                newcat[1] = je.getAsJsonArray().get(i).getAsJsonObject().get("reference").getAsString();
-                newcat[2] = je.getAsJsonArray().get(i).getAsJsonObject().get("barcode").getAsString();
-                newcat[3] = category;
-                newcat[4] = je.getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString();
-                newcat[5] = "001";
-                newcat[6] = je.getAsJsonArray().get(i).getAsJsonObject().get("buyprice").getAsDouble();
-                newcat[7] = je.getAsJsonArray().get(i).getAsJsonObject().get("sellprice").getAsDouble();
-                newcat[8]="0";
-                //newcat[8] = je.getAsJsonArray().get(i).getAsJsonObject().get("uom").getAsString();
-                newcat[9] = je.getAsJsonArray().get(i).getAsJsonObject().get("reference").getAsString();
-                newcat[10] = je.getAsJsonArray().get(i).getAsJsonObject().get("barcode").getAsString();
-                newcat[11] = category;
-                newcat[12] = je.getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString();
-                newcat[13] = "001";
-                newcat[14] = je.getAsJsonArray().get(i).getAsJsonObject().get("buyprice").getAsDouble();
-                newcat[15] = je.getAsJsonArray().get(i).getAsJsonObject().get("sellprice").getAsDouble();
-                
-                newcat[16]="0";
-                System.out.println("Category ==> "+category);
-                if(!"".equals(category)){
-                    try {
-                        JsonElement lokasi=je.getAsJsonArray().get(i).getAsJsonObject().get("locations").getAsJsonArray();
-                        Double qtyOnHand;
-                        if(lokasi.getAsJsonArray().size()>0){
-                            qtyOnHand= je.getAsJsonArray().get(i).getAsJsonObject().get("locations").getAsJsonArray().get(0).getAsJsonObject().get("qtyOnHand").getAsDouble();
-                        }else{
-                            qtyOnHand=0.0;
-                        }
-                        
-                        System.out.println(qtyOnHand);
-                        dlSales.createProducts(newcat);
-                        Object[] newProductsCat = new Object[2];
-                        newProductsCat[0] = id;
-                        newProductsCat[1] = id;
-                        dlSales.createProductsCat(newProductsCat);
-                        Object[] newStockCurrent=new Object[4];
-                        newStockCurrent[0]=id;
-                        newStockCurrent[1]=qtyOnHand;
-                        newStockCurrent[2]=id;
-                        newStockCurrent[3]=qtyOnHand;
-                        dlSales.createStockCurrent(newStockCurrent);
-                    } catch (BasicException ex) {
-                        Logger.getLogger(ProductsEditor.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-                
-            
-        }
-  
-  }
+//  public void productsInit(AppView app) throws IOException{
+//      TokenBasedAuth tokenBasedAuth=new com.openbravo.pos.forms.TokenBasedAuth(app);
+//      String responseString=tokenBasedAuth.getMasterProducts();
+//      System.out.println("ressponse Product"+responseString);
+//      JsonElement je = new JsonParser().parse(responseString);
+//      int jsonLength=je.getAsJsonArray().size();
+//    
+//        for(int i=0;i<jsonLength;i++){
+//                String id=je.getAsJsonArray().get(i).getAsJsonObject().get("id").getAsString();
+//                String category=je.getAsJsonArray().get(i).getAsJsonObject().get("category").getAsString();
+//                Object[] newcat = new Object[19];
+//                newcat[0] = id;
+//                newcat[1] = je.getAsJsonArray().get(i).getAsJsonObject().get("reference").getAsString();
+//                newcat[2] = !"".equals(je.getAsJsonArray().get(i).getAsJsonObject().get("barcode").getAsString()) ? je.getAsJsonArray().get(i).getAsJsonObject().get("barcode").getAsString() : id;
+//                newcat[3] = category;
+//                newcat[4] = je.getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString();
+//                newcat[5] = "001";
+//                newcat[6] = je.getAsJsonArray().get(i).getAsJsonObject().get("buyprice").getAsDouble();
+//                newcat[7] = je.getAsJsonArray().get(i).getAsJsonObject().get("sellprice").getAsDouble();
+//                newcat[8]="0";
+//                newcat[9]=je.getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString();
+//                //newcat[8] = je.getAsJsonArray().get(i).getAsJsonObject().get("uom").getAsString();
+//                newcat[10] = je.getAsJsonArray().get(i).getAsJsonObject().get("reference").getAsString();
+//                newcat[11] = !"".equals(je.getAsJsonArray().get(i).getAsJsonObject().get("barcode").getAsString()) ? je.getAsJsonArray().get(i).getAsJsonObject().get("barcode").getAsString() : id;
+//                newcat[12] = category;
+//                newcat[13] = je.getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString();
+//                newcat[14] = "001";
+//                newcat[15] = je.getAsJsonArray().get(i).getAsJsonObject().get("buyprice").getAsDouble();
+//                newcat[16] = je.getAsJsonArray().get(i).getAsJsonObject().get("sellprice").getAsDouble();
+//                newcat[17]="0";
+//                newcat[18]=je.getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString();
+//            
+//                if(!"".equals(category)){
+//                    try {
+//                        JsonElement lokasi=je.getAsJsonArray().get(i).getAsJsonObject().get("locations").getAsJsonArray();
+//                        Double qtyOnHand;
+//                        if(lokasi.getAsJsonArray().size()>0){
+//                            qtyOnHand= je.getAsJsonArray().get(i).getAsJsonObject().get("locations").getAsJsonArray().get(0).getAsJsonObject().get("qtyOnHand").getAsDouble();
+//                        }else{
+//                            qtyOnHand=0.0;
+//                        }
+//                        
+//                        System.out.println(qtyOnHand);
+//                        dlSales.createProducts(newcat);
+//                        Object[] newProductsCat = new Object[2];
+//                        newProductsCat[0] = id;
+//                        newProductsCat[1] = id;
+//                        dlSales.createProductsCat(newProductsCat);
+//                        Object[] newStockCurrent=new Object[4];
+//                        newStockCurrent[0]=id;
+//                        newStockCurrent[1]=qtyOnHand;
+//                        newStockCurrent[2]=id;
+//                        newStockCurrent[3]=qtyOnHand;
+//                        dlSales.createStockCurrent(newStockCurrent);
+//                    } catch (BasicException ex) {
+//                        Logger.getLogger(ProductsEditor.class.getName()).log(Level.SEVERE, null, ex);
+//                    }
+//                }
+//                
+//            
+//        }
+//  
+//  }
 
   private void init() {
     writeValueEOF();
@@ -311,7 +313,8 @@ public final class ProductsEditor extends javax.swing.JPanel implements EditorRe
   public void refresh() {
       System.out.println("REFRESSSS");
       try {
-          productsInit();
+          TokenBasedAuth tok=new TokenBasedAuth(appView);
+          tok.productsInit();
       } catch (IOException ex) {
           Logger.getLogger(ProductsEditor.class.getName()).log(Level.SEVERE, null, ex);
       }

@@ -44,7 +44,7 @@ public class JDialogNewCustomer extends javax.swing.JDialog {
     private TableDefinition tcustomers;
     private CustomerInfoExt selectedCustomer;
     private Object m_oId;
-    
+    private AppView appNew;
     /** Creates new form quick New Customer
      * @param parent */
     protected JDialogNewCustomer(java.awt.Frame parent) {
@@ -58,7 +58,7 @@ public class JDialogNewCustomer extends javax.swing.JDialog {
     } 
     
     private void init(AppView app) {
-
+        this.appNew=app;
         try {
             dlSales = (DataLogicSales) app.getBean("com.openbravo.pos.forms.DataLogicSales");
             dlCustomer = (DataLogicCustomers) app.getBean("com.openbravo.pos.customers.DataLogicCustomers");
@@ -651,7 +651,7 @@ public class JDialogNewCustomer extends javax.swing.JDialog {
       data.addProperty("password","");
       
       
-      TokenBasedAuth tokenBasedAuth=new com.openbravo.pos.forms.TokenBasedAuth();
+      TokenBasedAuth tokenBasedAuth=new com.openbravo.pos.forms.TokenBasedAuth(this.appNew);
       String responseString="";
       try {
           responseString = tokenBasedAuth.postToNetsuite(data);
@@ -675,7 +675,7 @@ public class JDialogNewCustomer extends javax.swing.JDialog {
       data.addProperty("nama_anak",nama);
       data.addProperty("tanggal_lahir",tgl);
       
-      TokenBasedAuth tokenBasedAuth=new com.openbravo.pos.forms.TokenBasedAuth();
+      TokenBasedAuth tokenBasedAuth=new com.openbravo.pos.forms.TokenBasedAuth(this.appNew);
       String responseString="";
       try {
           responseString = tokenBasedAuth.postToNetsuite(data);

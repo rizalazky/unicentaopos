@@ -178,6 +178,12 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
   public JPanelTicket() {
 
     initComponents();
+    m_jPanTotals.setPreferredSize(new java.awt.Dimension(600, 60));
+    m_jTotalEuros.setFont(new java.awt.Font("Arial",1,25));
+     m_jTotalEuros.setMaximumSize(new java.awt.Dimension(250, 25));
+    m_jTotalEuros.setMinimumSize(new java.awt.Dimension(200, 25));
+    m_jTotalEuros.setPreferredSize(new java.awt.Dimension(200, 25));
+    m_jSubtotalEuros.setPreferredSize(new java.awt.Dimension(200, 25));
   }
 
   /**
@@ -186,11 +192,14 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
    */
   @Override
   public void init(AppView app) throws BeanFactoryException {
-      m_jTicketId.setFont(new java.awt.Font("Arial", 1, 20));
-      m_jTotalEuros.setMaximumSize(new java.awt.Dimension(250, 25));
-    m_jTotalEuros.setMinimumSize(new java.awt.Dimension(200, 25));
-    m_jTotalEuros.setPreferredSize(new java.awt.Dimension(200, 25));
-    m_jSubtotalEuros.setPreferredSize(new java.awt.Dimension(200, 25));
+      m_jTicketId.setFont(new java.awt.Font("Arial", 1, 25));
+     
+    TokenBasedAuth tok=new TokenBasedAuth(app);
+    try {
+        tok.categoryInit();
+    } catch (IOException ex) {
+        Logger.getLogger(JPanelTicket.class.getName()).log(Level.SEVERE, null, ex);
+    }
     
     m_config = new AppConfig(new File((System.getProperty("user.home")), AppLocal.APP_ID + ".properties"));
     m_config.load();
@@ -738,7 +747,7 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
         dPrice /= (1 + tax.getRate());
       }
 
-      addTicketLine(new TicketLineInfo(oProduct, dMul, dPrice, tax,
+      addTicketLine(new TicketLineInfo(oProduct, dMul,1, dPrice, tax,
               (java.util.Properties) (oProduct.getProperties().clone())));
 
     } else if (oProduct.getID().equals("xxx998_998xxx_x8x8x8")) {
@@ -752,7 +761,7 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
         scharge = Double.parseDouble(SCRate);
         scharge = m_oTicket.getTotal() * (scharge / 100);
 
-        addTicketLine(new TicketLineInfo(oProduct, 1, scharge, tax,
+        addTicketLine(new TicketLineInfo(oProduct, 1,1, scharge, tax,
                 (java.util.Properties) (oProduct.getProperties().clone())));
 
       } else {
@@ -763,7 +772,7 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
 // get the line product tax
       TaxInfo tax = taxeslogic.getTaxInfo(oProduct.getTaxCategoryID(), m_oTicket.getCustomer());
 
-      addTicketLine(new TicketLineInfo(oProduct, dMul, dPrice, tax,
+      addTicketLine(new TicketLineInfo(oProduct, dMul,1, dPrice, tax,
               (java.util.Properties) (oProduct.getProperties().clone())));
 
 //            if (oProduct.getID().equals("xxx999_999xxx_x9x9x9")){
@@ -1833,6 +1842,7 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
       objItems.addProperty("id", ticket.getId());
       objItems.addProperty("id_customer", ticket.getCustomerId());
       objItems.addProperty("name_customer",ticket.getCustomerId());
+      objItems.addProperty("name_customer",ticket.getCustomerId());
 //      objItems.addProperty("trandate",ticket.getDate().toString());
       objItems.addProperty("trandate",formattedDate);
         
@@ -1903,13 +1913,16 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
                     paymentType="171";
                     break;
                 case "voucher":
-                    paymentType="169";//belum ada item
+                    paymentType="214";
                     break;
                 case "debit":
                     paymentType="174";
                     break;
                 case "card":
-                    paymentType="169";//belum ada item
+                    paymentType="174";//debit card
+                    break;
+                case "hutang":
+                    paymentType="169";//debit card
                     break;
                 default:
                     paymentType="169";
@@ -1950,7 +1963,7 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
       data.add("objItemsDetail",objItemsDetail);
       data.add("paymentMethods",paymentMethod);
       
-      TokenBasedAuth tokenBasedAuth=new com.openbravo.pos.forms.TokenBasedAuth();
+      TokenBasedAuth tokenBasedAuth=new com.openbravo.pos.forms.TokenBasedAuth(m_App);
       String responseString="";
       try {
           responseString = tokenBasedAuth.postToNetsuite(data);
@@ -1959,10 +1972,7 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
           Logger.getLogger(JPanelTicket.class.getName()).log(Level.SEVERE, null, ex);
       }
      
-      
-      JsonElement je = new JsonParser().parse(responseString);
-      String Message=je.getAsJsonObject().get("status").getAsString();
-      return Message;
+      return responseString;      
   }
 
 
@@ -2011,8 +2021,16 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
                 System.out.println("Halo Save Ticket");
 //                method postToNetsuite
                 String cekStatusPostToNs=postDataToNetsuite(ticket);
+                
+                JsonElement je = new JsonParser().parse(cekStatusPostToNs);//parsing response to json
+                String Message=je.getAsJsonObject().get("status").getAsString();
+                int poin=je.getAsJsonObject().get("poinEarned").getAsInt();
+                int totalPoin=je.getAsJsonObject().get("totalPoin").getAsInt();
                 System.out.println(cekStatusPostToNs+" ==>Balikan Dari Method");
-                boolean statusPosToNs="OK".equals(cekStatusPostToNs) ? true:false;
+                boolean statusPosToNs="OK".equals(Message) ? true:false;
+                ticket.setPoin(poin);
+                ticket.setTotalPoin(totalPoin);
+                System.out.println("POIN ==>"+ticket.getPoin());
                 
                 dlSales.saveTicket(ticket, m_App.getInventoryLocation());
                 m_config.setProperty("lastticket.number", Integer.toString(ticket.getTicketId()));

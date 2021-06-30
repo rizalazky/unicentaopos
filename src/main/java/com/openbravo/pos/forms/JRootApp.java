@@ -308,7 +308,6 @@ public class JRootApp extends JPanel implements AppView, DeviceMonitorEventListe
         continue;
 
       String iButtonId = devt.getAddressAsStringAt(i);
-
       if (m_principalapp != null) {
         AppUser currentUser = m_principalapp.getUser();
         if (currentUser != null && currentUser.getCard().equals(iButtonId))
@@ -330,7 +329,8 @@ public class JRootApp extends JPanel implements AppView, DeviceMonitorEventListe
 
     m_props = props;
     m_jPanelDown.setVisible(!(Boolean.valueOf(m_props.getProperty("till.hideinfo"))));
-
+    
+    
     applyComponentOrientation(ComponentOrientation.getOrientation(Locale.getDefault()));
 
     try {
@@ -851,7 +851,7 @@ public class JRootApp extends JPanel implements AppView, DeviceMonitorEventListe
     if (closeAppView()) {
 
       m_principalapp = new JPrincipalApp(this, user);
-
+      m_principalapp.setFont(new java.awt.Font("Arial",1,20));
       jPanel3.add(m_principalapp.getNotificator());
       jPanel3.revalidate();
 

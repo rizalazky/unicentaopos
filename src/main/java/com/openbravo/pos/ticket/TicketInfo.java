@@ -78,6 +78,8 @@ public final class TicketInfo implements SerializableRead, Externalizable {
     private final String m_locked;
     private Double nsum;
     private int ticketstatus;
+    private int poin;
+     private int totalPoin;
 
     private static String Hostname;
 
@@ -111,7 +113,9 @@ public final class TicketInfo implements SerializableRead, Externalizable {
         tip = Boolean.valueOf(config.getProperty("machine.showTip"));
         m_isProcessed = false;
         m_locked = null;
-        ticketstatus = 0;        
+        ticketstatus = 0;
+        poin=0;
+totalPoin=0;        
     }
 
     @Override
@@ -125,6 +129,8 @@ public final class TicketInfo implements SerializableRead, Externalizable {
         out.writeObject(m_aLines);
 
         out.writeInt(ticketstatus);
+        out.writeInt(poin);
+        out.writeInt(totalPoin);
     }
 
     @Override
@@ -142,6 +148,7 @@ public final class TicketInfo implements SerializableRead, Externalizable {
         taxes = null;
 
         ticketstatus = in.readInt();
+        
     }
 
     /**
@@ -234,6 +241,21 @@ public final class TicketInfo implements SerializableRead, Externalizable {
         }
     }
     
+    public int getPoin() {
+        return poin;
+    }
+    
+    public int getTotalPoin() {
+        return totalPoin;
+    }
+    public void setPoin(int poinIN) {
+        poin=poinIN;
+    }
+    
+    public void setTotalPoin(int TotpoinIN) {
+        totalPoin=TotpoinIN;
+    }
+    
     public void setPickupId(int iTicketId) {
         m_iPickupId = iTicketId;
     }
@@ -251,20 +273,20 @@ public final class TicketInfo implements SerializableRead, Externalizable {
             name.add(nameprop);            
         }
         
-        if (m_User != null) {
-            name.add(m_User.getName());                        
-        }
-
-        if (info == null) {
-            if (m_iTicketId == 0) {
-                name.add("(" + m_dateformat.format(m_dDate) + " " 
-                        + Long.toString(m_dDate.getTime() % 1000) + ")");                
-            } else {
-                name.add(Integer.toString(m_iTicketId));                
-            }
-        } else {
-            name.add(info.toString());            
-        }
+//        if (m_User != null) {
+//            name.add(m_User.getName());                        
+//        }
+//
+//        if (info == null) {
+//            if (m_iTicketId == 0) {
+//                name.add("(" + m_dateformat.format(m_dDate) + " " 
+//                        + Long.toString(m_dDate.getTime() % 1000) + ")");                
+//            } else {
+//                name.add(Integer.toString(m_iTicketId));                
+//            }
+//        } else {
+//            name.add(info.toString());            
+//        }
 
         if (m_Customer != null) {        
             name.add(m_Customer.getName());            
@@ -406,7 +428,7 @@ public final class TicketInfo implements SerializableRead, Externalizable {
         sum = m_aLines.stream().map((line) -> 
                 line.getSubValue()).reduce(sum, (accumulator, _item) -> 
                         accumulator + _item);
-        return sum;
+        return Math.ceil(sum/100)*100;
     }
 
     public double getTax() {
@@ -422,11 +444,11 @@ public final class TicketInfo implements SerializableRead, Externalizable {
                     line.getTax()).reduce(sum, (accumulator, _item) -> 
                             accumulator + _item);
             }
-        return sum;
+        return Math.ceil(sum/100)*100;
     }
 
     public double getTotal() {
-        return getSubTotal() + getTax();
+        return Math.ceil((getSubTotal() + getTax())/100)*100;
 
     }
     
@@ -561,6 +583,10 @@ public final class TicketInfo implements SerializableRead, Externalizable {
     public String printDate() {
         return Formats.TIMESTAMP.formatValue(m_dDate);
     }
+    
+    public String printDateTicket() {
+        return m_dDate.getDate()+"/"+(m_dDate.getMonth()+1)+"/"+(m_dDate.getYear()+1900)+" "+m_dDate.getHours()+":"+m_dDate.getMinutes();
+    }
 
     public String printUser() {
         return m_User == null ? "" : m_User.getName();
@@ -619,6 +645,18 @@ public final class TicketInfo implements SerializableRead, Externalizable {
 
     public String printTotal() {
         return Formats.CURRENCY.formatValue(getTotal());
+    }
+    
+    public String printDiscount(Double param) {
+        return Formats.CURRENCY.formatValue(param);
+    }
+    
+    public String printPoin(){
+        return Formats.DOUBLE.formatValue(getPoin());
+    }
+    
+    public String printTotalPoin(){
+        return Formats.DOUBLE.formatValue(getTotalPoin());
     }
 
     public String printTotalPaid() {

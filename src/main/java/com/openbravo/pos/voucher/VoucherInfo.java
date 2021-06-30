@@ -32,7 +32,7 @@ public class VoucherInfo implements IKeyed {
     private String customerName;
     private double amount;
     private String status;
-    private String expired_date;
+    private java.util.Date expired_date;
 
     public VoucherInfo() {
     }
@@ -43,13 +43,14 @@ public class VoucherInfo implements IKeyed {
         String customerName,
         double amount, 
         String status,
-        String expired_date) 
+        Date expired_date) 
     {
         this.id = id;
         this.voucherNumber = voucherNumber;
         this.customerName = customerName;
         this.amount = amount;
         this.status = status;
+        this.expired_date=expired_date;
     }
       
 
@@ -134,7 +135,7 @@ public class VoucherInfo implements IKeyed {
         this.status = status;
     }
     
-    public String getExpiredDate() {
+    public Date getExpiredDate() {
         return expired_date;
     }
 
@@ -142,7 +143,7 @@ public class VoucherInfo implements IKeyed {
      * @param expired_date
      * 
      */
-    public void setExpiredDate(String expired_date) {
+    public void setExpiredDate(Date expired_date) {
         this.expired_date = expired_date;
     }
 
@@ -157,7 +158,7 @@ public class VoucherInfo implements IKeyed {
                     dr.getString(3),
                     dr.getDouble(4),
                     dr.getString(5),
-                    dr.getString(6)
+                    dr.getTimestamp(6)
             );            
         }};
     }    

@@ -96,6 +96,7 @@ public class JPrincipalApp extends javax.swing.JPanel implements AppUserView {
     applyComponentOrientation(appview.getComponentOrientation());
 
     m_principalnotificator = new JLabel();
+    m_principalnotificator.setFont(new java.awt.Font("Arial",1,30)); 
     m_principalnotificator.applyComponentOrientation(getComponentOrientation());
     m_principalnotificator.setText(m_appuser.getName());
     m_principalnotificator.setIcon(m_appuser.getIcon());

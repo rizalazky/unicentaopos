@@ -9,7 +9,11 @@ package com.openbravo.pos.forms;
  *
  * @author LENOVO
  */
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.openbravo.basic.BasicException;
+import java.io.File;
 import java.util.Base64;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -22,6 +26,8 @@ import java.util.logging.Logger;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.lang.RandomStringUtils;
+import com.openbravo.pos.forms.DataLogicSales;
+import com.openbravo.pos.inventory.ProductsEditor;
 
 //import org.json.JSONObject;
 
@@ -50,10 +56,24 @@ public class TokenBasedAuth {
     private static final String DEPLOYMENT_ID = "2";
 
     
-
+    private final DataLogicSales dlSales;
+    
+    public TokenBasedAuth(AppView app){
+        dlSales = (DataLogicSales) app.getBean("com.openbravo.pos.forms.DataLogicSales");
+    }
+    
     public static void main(String[] args) {
 
-            
+        
+    }
+    
+    public String getHost() {
+      AppConfig m_config_host =  new AppConfig(new File((System.getProperty("user.home")),
+              AppLocal.APP_ID + ".properties"));        
+      m_config_host.load();
+      String machineHostname =(m_config_host.getProperty("machine.hostname"));
+      m_config_host = null;
+      return machineHostname;
     }
     
     protected String generateSignature(String baseString, String keyString, String algorithm) throws Exception
@@ -80,7 +100,9 @@ public class TokenBasedAuth {
 
     
     public String getMasterCategory() throws IOException{
-        String url=REST_URL+"?script=11&deploy=2&record_type=get_categories";
+        String HostName=getHost();
+        System.out.println("HostName ==>"+HostName);
+        String url=REST_URL+"?script=11&deploy=2&record_type=get_categories&hostname="+HostName;
         URL myURL = new URL(url);
         HttpURLConnection conn = (HttpURLConnection)myURL.openConnection();
 
@@ -95,6 +117,7 @@ public class TokenBasedAuth {
         "GET&" + URLEncoder.encode(REST_URL) +"&"+
         URLEncoder.encode(
             "deploy=" + DEPLOYMENT_ID
+                + "&hostname="+HostName
                 + "&oauth_consumer_key=" + CONSUMER_KEY
                 + "&oauth_nonce=" + oauth_nonce
                 + "&oauth_signature_method=" +oauth_signature_method
@@ -131,6 +154,79 @@ public class TokenBasedAuth {
 //        int responseCode=conn.getResponseCode();
         String responseMsg=conn.getResponseMessage();
         
+        
+        if("OK".equals(responseMsg)){
+            String response = "";
+            try (Scanner scanner = new Scanner(conn.getInputStream())) {
+                while(scanner.hasNextLine()){
+                    response += scanner.nextLine();
+                    response += "\n";
+                }
+                
+            }
+            
+            return response;
+        }
+        
+        return null;  
+    }
+    
+    public String getPosConfiguration() throws IOException{
+        String HostName=getHost();
+        System.out.println("HostName ==>"+HostName);
+        String url=REST_URL+"?script=11&deploy=2&record_type=get_pos_config&hostname="+HostName;
+        System.out.println("URL :"+url);
+        URL myURL = new URL(url);
+        HttpURLConnection conn = (HttpURLConnection)myURL.openConnection();
+
+        String oauth_nonce = RandomStringUtils.randomAlphanumeric(20);
+        Long timestamp = System.currentTimeMillis() / 1000L;
+
+        String oauth_timestamp=timestamp.toString();
+        String oauth_signature_method="HMAC-SHA256";
+        String oauth_version="1.0";
+        
+        String base_string =
+        "GET&" + URLEncoder.encode(REST_URL) +"&"+
+        URLEncoder.encode(
+            "deploy=" + DEPLOYMENT_ID
+                + "&hostname="+HostName
+                + "&oauth_consumer_key=" + CONSUMER_KEY
+                + "&oauth_nonce=" + oauth_nonce
+                + "&oauth_signature_method=" +oauth_signature_method
+                + "&oauth_timestamp=" + oauth_timestamp
+                + "&oauth_token=" + TOKEN_ID
+                + "&oauth_version=" + oauth_version
+                + "&record_type=get_pos_config"
+                + "&script=" + SCRIPT_ID
+        );
+        String sig_string=URLEncoder.encode(CONSUMER_SECRET)+"&"+URLEncoder.encode(TOKEN_SECRET);
+   
+        String signature="";
+        try {
+            signature=generateSignature(base_string,sig_string,"HmacSHA256");
+        } catch (Exception ex) {
+            Logger.getLogger(TokenBasedAuth.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        String header="OAuth realm=\""+ REALM +"\","
+            +"oauth_consumer_key=\""+CONSUMER_KEY +"\","
+            +"oauth_token=\""+TOKEN_ID+"\","
+            +"oauth_signature_method=\""+oauth_signature_method+"\","
+            +"oauth_timestamp=\""+oauth_timestamp+"\","
+            +"oauth_nonce=\""+oauth_nonce+"\","
+            +"oauth_version=\""+oauth_version+"\","
+            +"oauth_signature=\""+URLEncoder.encode(signature)+"\"";
+        
+        conn.setReadTimeout(60 * 1000);
+        conn.setConnectTimeout(60 * 1000);
+        conn.setRequestProperty("Authorization", header);
+        conn.setRequestMethod("GET");
+        conn.setRequestProperty("Content-Type", APP_JSON);
+        
+//        int responseCode=conn.getResponseCode();
+        String responseMsg=conn.getResponseMessage();
+        System.out.println("Response Msg :"+responseMsg);
         
         if("OK".equals(responseMsg)){
             String response = "";
@@ -359,6 +455,100 @@ public class TokenBasedAuth {
         
         return null;  
     }
+    
+    
+    public void categoryInit() throws IOException{
+      try {
+//          TokenBasedAuth tokenBasedAuth=new com.openbravo.pos.forms.TokenBasedAuth();
+          String responseString=getMasterCategory();
+          System.out.println("Response Cat : "+responseString);
+          JsonElement je = new JsonParser().parse(responseString);
+          int jsonLength=je.getAsJsonArray().size();
+          
+          //delete All Categories
+          dlSales.updateAllCategory();
+          //insert data from netsuite to databse unicenta
+          for(int i=0;i<jsonLength;i++){
+              try {
+                  Object[] newcat = new Object[6];
+                  newcat[0] = je.getAsJsonArray().get(i).getAsJsonObject().get("id").getAsString();
+                  newcat[1] = je.getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString();
+                  newcat[2] = true;
+                  newcat[3] = je.getAsJsonArray().get(i).getAsJsonObject().get("id").getAsString();
+                  newcat[4] = je.getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString();
+                  newcat[5] = true;
+                  System.out.println(je.getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString());
+                  dlSales.createCategory(newcat);
+              } catch (BasicException ex) {
+                  Logger.getLogger(TokenBasedAuth.class.getName()).log(Level.SEVERE, null, ex);
+              }
+          }
+      } catch (BasicException ex) {
+          Logger.getLogger(TokenBasedAuth.class.getName()).log(Level.SEVERE, null, ex);
+      }
+  }
+    
+     public void productsInit() throws IOException{
+//      TokenBasedAuth tokenBasedAuth=new com.openbravo.pos.forms.TokenBasedAuth(app);
+      String responseString=getMasterProducts();
+      System.out.println("ressponse Product"+responseString);
+      JsonElement je = new JsonParser().parse(responseString);
+      int jsonLength=je.getAsJsonArray().size();
+    
+        for(int i=0;i<jsonLength;i++){
+                String id=je.getAsJsonArray().get(i).getAsJsonObject().get("id").getAsString();
+                String category=je.getAsJsonArray().get(i).getAsJsonObject().get("category").getAsString();
+                String priceIncludedTax=je.getAsJsonArray().get(i).getAsJsonObject().get("pricesincludetax").getAsString();
+                Object[] newcat = new Object[19];
+                newcat[0] = id;
+                newcat[1] = je.getAsJsonArray().get(i).getAsJsonObject().get("reference").getAsString();
+                newcat[2] = !"".equals(je.getAsJsonArray().get(i).getAsJsonObject().get("barcode").getAsString()) ? je.getAsJsonArray().get(i).getAsJsonObject().get("barcode").getAsString() : id;
+                newcat[3] = category;
+                newcat[4] = je.getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString();
+                newcat[5] = priceIncludedTax == "T" ? "001" : "000";
+                newcat[6] = je.getAsJsonArray().get(i).getAsJsonObject().get("buyprice").getAsDouble();
+                newcat[7] = je.getAsJsonArray().get(i).getAsJsonObject().get("sellprice").getAsDouble();
+                newcat[8]="0";
+                newcat[9]=je.getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString();
+                //newcat[8] = je.getAsJsonArray().get(i).getAsJsonObject().get("uom").getAsString();
+                newcat[10] = je.getAsJsonArray().get(i).getAsJsonObject().get("reference").getAsString();
+                newcat[11] = !"".equals(je.getAsJsonArray().get(i).getAsJsonObject().get("barcode").getAsString()) ? je.getAsJsonArray().get(i).getAsJsonObject().get("barcode").getAsString() : id;
+                newcat[12] = category;
+                newcat[13] = je.getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString();
+                newcat[14] = priceIncludedTax == "T" ? "001" : "000";
+                newcat[15] = je.getAsJsonArray().get(i).getAsJsonObject().get("buyprice").getAsDouble();
+                newcat[16] = je.getAsJsonArray().get(i).getAsJsonObject().get("sellprice").getAsDouble();
+                newcat[17]="0";
+                newcat[18]=je.getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString();
+            
+                if(!"".equals(category)){
+                    try {
+                        JsonElement lokasi=je.getAsJsonArray().get(i).getAsJsonObject().get("locations").getAsJsonArray();
+                        Double qtyOnHand;
+                        if(lokasi.getAsJsonArray().size()>0){
+                            qtyOnHand= je.getAsJsonArray().get(i).getAsJsonObject().get("locations").getAsJsonArray().get(0).getAsJsonObject().get("qtyOnHand").getAsDouble();
+                        }else{
+                            qtyOnHand=0.0;
+                        }
+                        
+                        System.out.println(qtyOnHand);
+                        dlSales.createProducts(newcat);
+                        Object[] newProductsCat = new Object[2];
+                        newProductsCat[0] = id;
+                        newProductsCat[1] = id;
+                        dlSales.createProductsCat(newProductsCat);
+                        Object[] newStockCurrent=new Object[4];
+                        newStockCurrent[0]=id;
+                        newStockCurrent[1]=qtyOnHand;
+                        newStockCurrent[2]=id;
+                        newStockCurrent[3]=qtyOnHand;
+                        dlSales.createStockCurrent(newStockCurrent);
+                    } catch (BasicException ex) {
+                        Logger.getLogger(TokenBasedAuth.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+        }
+  }
     
     
 }

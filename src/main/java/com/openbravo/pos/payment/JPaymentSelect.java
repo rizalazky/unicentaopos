@@ -19,6 +19,8 @@
 
 package com.openbravo.pos.payment;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.openbravo.format.Formats;
 import com.openbravo.pos.customers.CustomerInfoExt;
 import com.openbravo.pos.customers.DataLogicCustomers;
@@ -26,14 +28,18 @@ import com.openbravo.pos.forms.AppLocal;
 import com.openbravo.pos.forms.AppView;
 import com.openbravo.pos.forms.DataLogicSales;
 import com.openbravo.pos.forms.DataLogicSystem;
+import com.openbravo.pos.forms.TokenBasedAuth;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
 
 /**
@@ -51,6 +57,7 @@ public abstract class JPaymentSelect extends javax.swing.JDialog
 
     private AppView app;
     private double m_dTotal;
+    private JsonElement jsonListPayment;
     private CustomerInfoExt customerext;
     private DataLogicSystem dlSystem;
     private DataLogicCustomers dlCustomers;
@@ -108,6 +115,20 @@ public abstract class JPaymentSelect extends javax.swing.JDialog
 
     public void init(AppView app) {
         this.app = app;
+        
+        TokenBasedAuth tok=new TokenBasedAuth(app);
+        String result;
+        try {
+            result=tok.getPosConfiguration();
+            System.out.println("POS Configuration"+ result);
+            jsonListPayment = new JsonParser().parse(result);
+        } catch (IOException ex) {
+            Logger.getLogger(JPaymentSelect.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+         
+        
+        
         dlSystem = (DataLogicSystem) app.getBean("com.openbravo.pos.forms.DataLogicSystem");
         dlCustomers= (DataLogicCustomers) app.getBean("com.openbravo.pos.customers.DataLogicCustomers");
         dlSales = (DataLogicSales) app.getBean("com.openbravo.pos.forms.DataLogicSales");
@@ -144,7 +165,7 @@ public abstract class JPaymentSelect extends javax.swing.JDialog
         m_jButtonPrint.setSelected(printselected);
         m_jTotalEuros.setText(Formats.CURRENCY.formatValue(m_dTotal));
 
-        addTabs();
+        addTabs(app);
 
         // gets the print button state
         printselected = m_jButtonPrint.isSelected();
@@ -183,7 +204,7 @@ public abstract class JPaymentSelect extends javax.swing.JDialog
         int y = (screenDim.height - thisDim.height) / 2;
         this.setLocation(x, y);
 
-        addTabs();
+        addTabs(app);
 
         if (m_jTabPayment.getTabCount() == 0) {
             // No payment panels available
@@ -204,7 +225,7 @@ public abstract class JPaymentSelect extends javax.swing.JDialog
         return accepted;
     }
 
-    protected abstract void addTabs();
+    protected abstract void addTabs(AppView app);
     protected abstract void setStatusPanel(boolean isPositive, boolean isComplete);
     protected abstract PaymentInfo getDefaultPayment(double total);
 
@@ -215,10 +236,22 @@ public abstract class JPaymentSelect extends javax.swing.JDialog
     protected void setAddEnabled(boolean value) {
         m_jButtonAdd.setEnabled(value);
     }
+    
 
     protected void addTabPayment(JPaymentCreator jpay) {
-        if (app.getAppUserView().getUser().hasPermission(jpay.getKey())) {
-            
+        int jsonLength=jsonListPayment.getAsJsonArray().get(0).getAsJsonObject().get("paymentList").getAsJsonArray().size();
+        int cek=0;
+        
+        for (int i = 0; i < jsonLength; i++) {
+            String idPayment=jsonListPayment.getAsJsonArray().get(0).getAsJsonObject().get("paymentList").getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString();
+            System.out.println("ID Payment==>"+idPayment+" jkey.getKey ==>"+jpay.getKey()+" jkey.getLabelKey ==>"+AppLocal.getIntString(jpay.getLabelKey()));
+            if(AppLocal.getIntString(jpay.getLabelKey()).equals(idPayment)){
+                cek=cek + 1;
+            }
+        }
+        System.out.println("CEK Adalah ==>"+cek);
+        if (app.getAppUserView().getUser().hasPermission(jpay.getKey()) && cek > 0) {
+            System.out.println("Masuk Generate Tab");
             JPaymentInterface jpayinterface = payments.get(jpay.getKey());
             if (jpayinterface == null) {
                 jpayinterface = jpay.createJPayment();
@@ -228,11 +261,18 @@ public abstract class JPaymentSelect extends javax.swing.JDialog
 //            JLabel tabLabel = new JLabel(AppLocal.getIntString(jpay.getLabelKey()), JLabel.CENTER);
 //add new label at set location
             
+//            m_jTabPayment.addTab(
+//                    AppLocal.getIntString(jpay.getLabelKey()),
+//                    new javax.swing.ImageIcon(getClass().getResource(jpay.getIconKey())),
+//                    jpayinterface.getComponent());
+            m_jTabPayment.setFont(new java.awt.Font("Arial",1,16));
+
             m_jTabPayment.addTab(
-                    AppLocal.getIntString(jpay.getLabelKey()),
-                    new javax.swing.ImageIcon(getClass().getResource(jpay.getIconKey())),
-                    jpayinterface.getComponent());
-        }
+                                AppLocal.getIntString(jpay.getLabelKey()),
+                                null,
+                                jpayinterface.getComponent());
+            }
+            m_jTabPayment.setFont(new java.awt.Font("Arial",1,16));
     }
 
 
@@ -338,11 +378,11 @@ public abstract class JPaymentSelect extends javax.swing.JDialog
         }
         @Override
         public String getKey() {
-            return "payment.debt";
+            return "payment.hutang";
         }
         @Override
         public String getLabelKey() {
-            return "tab.debt";
+            return "tab.hutang";
         }
         @Override
         public String getIconKey() {
@@ -475,6 +515,25 @@ public abstract class JPaymentSelect extends javax.swing.JDialog
         @Override
         public String getLabelKey() {
             return "tab.ovo";
+        }
+        @Override
+        public String getIconKey() {
+            return "/com/openbravo/images/bank.png";
+        }
+    }
+    
+    public class JPaymentHutangCreator implements JPaymentCreator {
+        @Override
+        public JPaymentInterface createJPayment() {
+            return new JPaymentOvo(JPaymentSelect.this,"hutang");
+        }
+        @Override
+        public String getKey() {
+            return "payment.hutang";
+        }
+        @Override
+        public String getLabelKey() {
+            return "tab.hutang";
         }
         @Override
         public String getIconKey() {

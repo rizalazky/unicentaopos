@@ -19,9 +19,13 @@
 
 package com.openbravo.pos.catalog;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.openbravo.basic.BasicException;
 import com.openbravo.data.gui.JMessageDialog;
 import com.openbravo.data.gui.MessageInf;
+import com.openbravo.pos.customers.DataLogicCustomers;
+import com.openbravo.pos.forms.AppConfig;
 import com.openbravo.pos.forms.AppLocal;
 import com.openbravo.pos.forms.DataLogicSales;
 import com.openbravo.pos.sales.TaxesLogic;
@@ -42,6 +46,16 @@ import javax.swing.*;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import com.openbravo.pos.forms.AppView;
+import com.openbravo.pos.forms.BeanFactoryException;
+import com.openbravo.pos.forms.TokenBasedAuth;
+import com.openbravo.pos.inventory.CategoriesEditor;
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+
 
 /**
  *
@@ -55,7 +69,7 @@ public class JCatalog extends JPanel implements ListSelectionListener, CatalogSe
     protected EventListenerList listeners = new EventListenerList();
     private DataLogicSales m_dlSales;   
     private TaxesLogic taxeslogic;
-    
+    private AppView m_App;
     private boolean pricevisible;
     private boolean taxesincluded;
     
@@ -64,7 +78,7 @@ public class JCatalog extends JPanel implements ListSelectionListener, CatalogSe
     
     // Set of Categoriespanels
      private final Set<String> m_categoriesset = new HashSet<>();
-        
+     private AppConfig m_config;   
     private ThumbNailBuilder tnbbutton;
     private ThumbNailBuilder tnbcat;
     private ThumbNailBuilder tnbsubcat;
@@ -87,23 +101,28 @@ public class JCatalog extends JPanel implements ListSelectionListener, CatalogSe
      */
     public JCatalog(DataLogicSales dlSales, boolean pricevisible, 
             boolean taxesincluded, int width, int height) {
+
+        
         
         m_dlSales = dlSales;
         this.pricevisible = pricevisible;
         this.taxesincluded = taxesincluded;
         
         initComponents();
-        
+        m_jRootCategories.setFont(new java.awt.Font("Arial",0,18));
+        m_jCategories.setFont(new java.awt.Font("Arial",0,18));
+        m_jListCategories.setFont(new java.awt.Font("Arial",0,18));
+        m_jProducts.setFont(new java.awt.Font("Arial", 0, 18));
         m_jListCategories.addListSelectionListener(this);
         
         m_jscrollcat.getVerticalScrollBar().setPreferredSize(new Dimension(35, 35));
         
         tnbcat = new ThumbNailBuilder(48, 48, "com/openbravo/images/category.png");  
-        tnbsubcat = new ThumbNailBuilder(width, height, "com/openbravo/images/subcategory.png"); 
-        tnbbutton = new ThumbNailBuilder(width, height, "com/openbravo/images/null.png");        
-
+        tnbsubcat = new ThumbNailBuilder(width,height, "com/openbravo/images/subcategory.png"); 
+        tnbbutton = new ThumbNailBuilder(width,height, "com/openbravo/images/null.png");        
     }
     
+     
     /**
      *
      * @return
@@ -147,6 +166,28 @@ public class JCatalog extends JPanel implements ListSelectionListener, CatalogSe
     }    
     
     
+//    public void postConfig() throws IOException{
+//      TokenBasedAuth tokenBasedAuth=new com.openbravo.pos.forms.TokenBasedAuth();
+//      String responseString=tokenBasedAuth.getPosConfiguration();
+//   
+//      JsonElement je = new JsonParser().parse(responseString);
+//      int jsonLength=je.getAsJsonArray().size();
+//    
+//          //delete All Categories
+//          //dlSales.deleteAllCategory();
+//          //insert data from netsuite to databse unicenta
+//          for(int i=0;i<jsonLength;i++){
+//              Object[] newcat = new Object[6];
+//              newcat[0] = je.getAsJsonArray().get(i).getAsJsonObject().get("id").getAsString();
+//              newcat[1] = je.getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString();
+//              newcat[2] = true;
+//              newcat[3] = je.getAsJsonArray().get(i).getAsJsonObject().get("id").getAsString();
+//              newcat[4] = je.getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString();
+//              newcat[5] = true;
+//              System.out.println(je.getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString());
+//        }
+//      
+//  }
     /**
      *
      * @throws BasicException
@@ -166,8 +207,16 @@ public class JCatalog extends JPanel implements ListSelectionListener, CatalogSe
         taxeslogic = new TaxesLogic(m_dlSales.getTaxList().list());
 
         // Load all categories.
-        java.util.List<CategoryInfo> categories = m_dlSales.getRootCategories(); 
+        // if user Roles === Laundry get only laundry categories
         
+        java.util.List<CategoryInfo> categories = m_dlSales.getRootCategories();
+//        System.out.println(m_App.getAppUserView().getUser().getRole());
+        
+//        if("Laundry".equals(AppView.getAppUserView().getUser().getRole())){
+//            System.out.println("Role User"+app.getAppUserView().getUser().getRole());
+//        } else {
+
+//        }
         // Select the first category
         m_jListCategories.setCellRenderer(new SmallCategoryRenderer());
         m_jListCategories.setModel(new CategoriesListModel(categories)); // aCatList
@@ -309,15 +358,15 @@ public class JCatalog extends JPanel implements ListSelectionListener, CatalogSe
             if (taxesincluded) {
                 TaxInfo tax = taxeslogic.getTaxInfo(product.getTaxCategoryID());
                 if(!"".equals(product.getDisplay())){
-                    return "<html><center>" + product.getDisplay() + "<br>" + product.printPriceSellTax(tax);                
+                    return "<html><center style='font-size:14px;'>" + product.getDisplay() + "<br>" + product.printPriceSellTax(tax);                
                 } else {
-                    return "<html><center>" + product.getName() + "<br>" + product.printPriceSellTax(tax);                                    
+                    return "<html><center style='font-size:14px;'>" + product.getName() + "<br>" + product.printPriceSellTax(tax);                                    
                 }
             } else {
                 if(!"".equals(product.getDisplay())){
-                    return "<html><center>" + product.getDisplay() + "<br>" + product.printPriceSell();                
+                    return "<html><center style='font-size:14px;'>" + product.getDisplay() + "<br>" + product.printPriceSell();                
                 } else {
-                    return "<html><center>" + product.getName() + "<br>" + product.printPriceSell();                
+                    return "<html><center style='font-size:14px;'>" + product.getName() + "<br>" + product.printPriceSell();                
                 }                
             }
         } else {

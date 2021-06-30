@@ -80,7 +80,7 @@ public final class StockDiaryEditor extends javax.swing.JPanel implements Editor
     private final String user;    
 
     
-    /** Creates new form StockDiaryEditor
+    /** Creates new form StockDiaryEditorjC
      * @param app
      * @param dirty */
     public StockDiaryEditor(AppView app, DirtyManager dirty) {

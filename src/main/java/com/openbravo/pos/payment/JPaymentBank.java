@@ -187,6 +187,7 @@ public class JPaymentBank extends javax.swing.JPanel implements JPaymentInterfac
         jPanel4.add(jLblBankption);
         jLblBankption.setBounds(10, 46, 90, 30);
 
+        jComboBoxBankAccount.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jPanel4.add(jComboBoxBankAccount);
         jComboBoxBankAccount.setBounds(120, 50, 180, 30);
 

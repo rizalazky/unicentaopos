@@ -94,7 +94,9 @@ public final class CategoriesEditor extends JPanel implements EditorRecord {
     
 
     initComponents();
-    categoryInit();
+    TokenBasedAuth tokenBasedAuth=new TokenBasedAuth(app);
+    tokenBasedAuth.categoryInit();
+//    categoryInit();
     // El modelo de categorias
     m_sentcat = dlSales.getCategoriesList();    
     
@@ -119,33 +121,37 @@ public final class CategoriesEditor extends JPanel implements EditorRecord {
     writeValueEOF();
   }
   
-  public void categoryInit() throws IOException{
-      TokenBasedAuth tokenBasedAuth=new com.openbravo.pos.forms.TokenBasedAuth();
-      String responseString=tokenBasedAuth.getMasterCategory();
-   
-      JsonElement je = new JsonParser().parse(responseString);
-      int jsonLength=je.getAsJsonArray().size();
-    
-      try {
-          //delete All Categories
-          dlSales.deleteAllCategory();
-          //insert data from netsuite to databse unicenta
-          for(int i=0;i<jsonLength;i++){
-            try {
-                Object[] newcat = new Object[3];
-                newcat[0] = je.getAsJsonArray().get(i).getAsJsonObject().get("id").getAsString();
-                newcat[1] = je.getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString();
-                newcat[2] = true;
-                System.out.println(je.getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString());
-                dlSales.createCategory(newcat);
-            } catch (BasicException ex) {
-                Logger.getLogger(CategoriesEditor.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-      } catch (BasicException ex) {
-          Logger.getLogger(CategoriesEditor.class.getName()).log(Level.SEVERE, null, ex);
-      }
-  }
+//  public void categoryInit() throws IOException{
+//      try {
+//          TokenBasedAuth tokenBasedAuth=new com.openbravo.pos.forms.TokenBasedAuth();
+//          String responseString=tokenBasedAuth.getMasterCategory();
+//          System.out.println("Response Cat : "+responseString);
+//          JsonElement je = new JsonParser().parse(responseString);
+//          int jsonLength=je.getAsJsonArray().size();
+//          
+//          //delete All Categories
+//          dlSales.updateAllCategory();
+//          //insert data from netsuite to databse unicenta
+//          for(int i=0;i<jsonLength;i++){
+//              try {
+//                  Object[] newcat = new Object[6];
+//                  newcat[0] = je.getAsJsonArray().get(i).getAsJsonObject().get("id").getAsString();
+//                  newcat[1] = je.getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString();
+//                  newcat[2] = true;
+//                  newcat[3] = je.getAsJsonArray().get(i).getAsJsonObject().get("id").getAsString();
+//                  newcat[4] = je.getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString();
+//                  newcat[5] = true;
+//                  System.out.println(je.getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString());
+//                  dlSales.createCategory(newcat);
+//              } catch (BasicException ex) {
+//                  Logger.getLogger(CategoriesEditor.class.getName()).log(Level.SEVERE, null, ex);
+//              }
+//          }
+//      } catch (BasicException ex) {
+//          Logger.getLogger(CategoriesEditor.class.getName()).log(Level.SEVERE, null, ex);
+//      }
+//      
+//  }
 
   /**
    *
