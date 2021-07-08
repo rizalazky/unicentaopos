@@ -59,6 +59,7 @@ public final class TicketInfo implements SerializableRead, Externalizable {
     private String m_sId;
     private int tickettype;
     private int m_iTicketId;
+    private String m_cashsaleId;
     private int m_iPickupId;
     private java.util.Date m_dDate;
     private Properties attributes;
@@ -115,7 +116,8 @@ public final class TicketInfo implements SerializableRead, Externalizable {
         m_locked = null;
         ticketstatus = 0;
         poin=0;
-totalPoin=0;        
+        totalPoin=0;
+        m_cashsaleId=null;
     }
 
     @Override
@@ -131,6 +133,7 @@ totalPoin=0;
         out.writeInt(ticketstatus);
         out.writeInt(poin);
         out.writeInt(totalPoin);
+        out.writeObject(m_cashsaleId);
     }
 
     @Override
@@ -148,6 +151,9 @@ totalPoin=0;
         taxes = null;
 
         ticketstatus = in.readInt();
+        poin=in.readInt();
+        totalPoin=in.readInt();
+        m_cashsaleId=(String)in.readObject();
         
     }
 
@@ -177,6 +183,9 @@ totalPoin=0;
         taxes = null;
         
         ticketstatus = dr.getInt(10);
+//        poin=dr.getInt(11);
+//        totalPoin=dr.getInt(12);
+        m_cashsaleId=dr.getString(11);
     }
 
     /**
@@ -208,6 +217,9 @@ totalPoin=0;
         // taxes are not copied, must be calculated again.
 
         t.ticketstatus = ticketstatus;
+        t.poin=poin;
+        t.totalPoin=totalPoin;
+        t.m_cashsaleId=m_cashsaleId;
         
         return t;
     }
@@ -226,8 +238,14 @@ totalPoin=0;
     public int getTicketId() {
         return m_iTicketId;
     }
+    public String getCashsaleId() {
+        return m_cashsaleId;
+    }
     public void setTicketId(int iTicketId) {
         m_iTicketId = iTicketId;
+    }
+    public void setCashsaleId(String iTicketId) {
+        m_cashsaleId = iTicketId;
     }
 
     public int getTicketStatus() {
@@ -585,7 +603,24 @@ totalPoin=0;
     }
     
     public String printDateTicket() {
-        return m_dDate.getDate()+"/"+(m_dDate.getMonth()+1)+"/"+(m_dDate.getYear()+1900)+" "+m_dDate.getHours()+":"+m_dDate.getMinutes();
+        int hari =m_dDate.getDate();
+        int jam =m_dDate.getHours();
+        int menit=m_dDate.getMinutes();
+        return hari+"/"+(m_dDate.getMonth()+1)+"/"+(m_dDate.getYear()+1900)+" "+(jam < 10 ? "0"+jam : jam)+":"+(menit < 10 ? "0"+menit :menit);
+    }
+    
+    public String printDateTicketH3() {
+        
+        Calendar c = Calendar.getInstance(); 
+        c.setTime(m_dDate); 
+        c.add(Calendar.DATE, 3);
+        m_dDate = c.getTime();
+        
+        int hari =m_dDate.getDate();
+        int jam =m_dDate.getHours();
+        
+        //return hari+"/"+(m_dDate.getMonth()+1)+"/"+(m_dDate.getYear()+1900)+" "+(jam < 10 ? "0"+jam : jam)+":"+m_dDate.getMinutes();
+        return hari+"/"+(m_dDate.getMonth()+1)+"/"+(m_dDate.getYear()+1900);
     }
 
     public String printUser() {

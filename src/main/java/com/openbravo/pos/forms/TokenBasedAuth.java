@@ -499,7 +499,7 @@ public class TokenBasedAuth {
                 String id=je.getAsJsonArray().get(i).getAsJsonObject().get("id").getAsString();
                 String category=je.getAsJsonArray().get(i).getAsJsonObject().get("category").getAsString();
                 String priceIncludedTax=je.getAsJsonArray().get(i).getAsJsonObject().get("pricesincludetax").getAsString();
-                Object[] newcat = new Object[19];
+                Object[] newcat = new Object[25];
                 newcat[0] = id;
                 newcat[1] = je.getAsJsonArray().get(i).getAsJsonObject().get("reference").getAsString();
                 newcat[2] = !"".equals(je.getAsJsonArray().get(i).getAsJsonObject().get("barcode").getAsString()) ? je.getAsJsonArray().get(i).getAsJsonObject().get("barcode").getAsString() : id;
@@ -510,17 +510,23 @@ public class TokenBasedAuth {
                 newcat[7] = je.getAsJsonArray().get(i).getAsJsonObject().get("sellprice").getAsDouble();
                 newcat[8]="0";
                 newcat[9]=je.getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString();
+                newcat[10]=je.getAsJsonArray().get(i).getAsJsonObject().get("satuan").getAsString() != null ? je.getAsJsonArray().get(i).getAsJsonObject().get("satuan").getAsString():"PCS";
+                newcat[11] = je.getAsJsonArray().get(i).getAsJsonObject().get("expressPrice").getAsDouble();
+                newcat[12] = je.getAsJsonArray().get(i).getAsJsonObject().get("regulerPrice").getAsDouble();
                 //newcat[8] = je.getAsJsonArray().get(i).getAsJsonObject().get("uom").getAsString();
-                newcat[10] = je.getAsJsonArray().get(i).getAsJsonObject().get("reference").getAsString();
-                newcat[11] = !"".equals(je.getAsJsonArray().get(i).getAsJsonObject().get("barcode").getAsString()) ? je.getAsJsonArray().get(i).getAsJsonObject().get("barcode").getAsString() : id;
-                newcat[12] = category;
-                newcat[13] = je.getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString();
-                newcat[14] = priceIncludedTax == "T" ? "001" : "000";
-                newcat[15] = je.getAsJsonArray().get(i).getAsJsonObject().get("buyprice").getAsDouble();
-                newcat[16] = je.getAsJsonArray().get(i).getAsJsonObject().get("sellprice").getAsDouble();
-                newcat[17]="0";
-                newcat[18]=je.getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString();
-            
+                newcat[13] = je.getAsJsonArray().get(i).getAsJsonObject().get("reference").getAsString();
+                newcat[14] = !"".equals(je.getAsJsonArray().get(i).getAsJsonObject().get("barcode").getAsString()) ? je.getAsJsonArray().get(i).getAsJsonObject().get("barcode").getAsString() : id;
+                newcat[15] = category;
+                newcat[16] = je.getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString();
+                newcat[17] = priceIncludedTax == "T" ? "001" : "000";
+                newcat[18] = je.getAsJsonArray().get(i).getAsJsonObject().get("buyprice").getAsDouble();
+                newcat[19] = je.getAsJsonArray().get(i).getAsJsonObject().get("sellprice").getAsDouble();
+                newcat[20]="0";
+                newcat[21]=je.getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString();
+                newcat[22]=je.getAsJsonArray().get(i).getAsJsonObject().get("satuan").getAsString();
+                newcat[23] = je.getAsJsonArray().get(i).getAsJsonObject().get("expressPrice").getAsDouble();
+                newcat[24] = je.getAsJsonArray().get(i).getAsJsonObject().get("regulerPrice").getAsDouble();
+                
                 if(!"".equals(category)){
                     try {
                         JsonElement lokasi=je.getAsJsonArray().get(i).getAsJsonObject().get("locations").getAsJsonArray();

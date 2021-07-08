@@ -161,6 +161,7 @@ public class JTicketsBagShared extends JTicketsBag {
                     m_panelticket.getActiveTicket().getPickupId());
                     m_jListTickets.setText("*");
                 TicketInfo l = dlReceipts.getSharedTicket(m_sCurrentTicket);
+                System.out.println("L adalah ==> "+l+" ID Ticket "+m_sCurrentTicket);
                     if(l.getLinesCount() == 0) {
                         dlReceipts.deleteSharedTicket(m_sCurrentTicket);
                     }             

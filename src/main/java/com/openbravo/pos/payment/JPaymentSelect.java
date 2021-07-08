@@ -126,8 +126,6 @@ public abstract class JPaymentSelect extends javax.swing.JDialog
             Logger.getLogger(JPaymentSelect.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-         
-        
         
         dlSystem = (DataLogicSystem) app.getBean("com.openbravo.pos.forms.DataLogicSystem");
         dlCustomers= (DataLogicCustomers) app.getBean("com.openbravo.pos.customers.DataLogicCustomers");

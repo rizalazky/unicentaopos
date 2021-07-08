@@ -184,6 +184,10 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
     m_jTotalEuros.setMinimumSize(new java.awt.Dimension(200, 25));
     m_jTotalEuros.setPreferredSize(new java.awt.Dimension(200, 25));
     m_jSubtotalEuros.setPreferredSize(new java.awt.Dimension(200, 25));
+    m_jSubtotalEuros.setVisible(false);
+    m_jTaxesEuros.setVisible(false);
+    m_jLblTotalEuros2.setVisible(false);
+    m_jLblTotalEuros3.setVisible(false);
   }
 
   /**
@@ -268,6 +272,7 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
     m_oTicket = null;
     m_oTicketExt = null;
     jCheckStock.setText(AppLocal.getIntString("message.title.checkstock"));
+    
 
     if (this instanceof JPanelTicketSales) {
       // 2016-10-14 TJMChan - Sales screen Layout code starts here.
@@ -740,6 +745,20 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
   private void addTicketLine(ProductInfoExt oProduct, double dMul, double dPrice) {
 
 //        if (oProduct.isVprice() || oProduct.getID().equals("xxx999_999xxx_x9x9x9")){
+    
+    TaxInfo taxe = taxeslogic.getTaxInfo(oProduct.getTaxCategoryID(), m_oTicket.getCustomer());
+    TicketLineInfo newline =null;
+      try {
+          newline=JProductSelectPrice.showMessage(this, m_App, new TicketLineInfo(oProduct, dMul,1,null,null,null,null,null,null,null,null,null,false, dPrice, taxe,
+                  (java.util.Properties) (oProduct.getProperties().clone())));
+      } catch (BasicException ex) {
+          Logger.getLogger(JPanelTicket.class.getName()).log(Level.SEVERE, null, ex);
+      }
+      if(newline !=null){
+          dPrice=newline.getPrice();
+      }
+      System.out.println("Price Dari JPanel="+dPrice);
+//    selectPrice.setVisible(true);
     if (oProduct.isVprice()) {
       TaxInfo tax = taxeslogic.getTaxInfo(oProduct.getTaxCategoryID(), m_oTicket.getCustomer());
 
@@ -747,7 +766,7 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
         dPrice /= (1 + tax.getRate());
       }
 
-      addTicketLine(new TicketLineInfo(oProduct, dMul,1, dPrice, tax,
+      addTicketLine(new TicketLineInfo(oProduct, dMul,1,null,null,null,null,null,null,null,null,null,false, dPrice, tax,
               (java.util.Properties) (oProduct.getProperties().clone())));
 
     } else if (oProduct.getID().equals("xxx998_998xxx_x8x8x8")) {
@@ -761,7 +780,7 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
         scharge = Double.parseDouble(SCRate);
         scharge = m_oTicket.getTotal() * (scharge / 100);
 
-        addTicketLine(new TicketLineInfo(oProduct, 1,1, scharge, tax,
+        addTicketLine(new TicketLineInfo(oProduct, 1,1,null,null,null,null,null,null,null,null,null,false, scharge, tax,
                 (java.util.Properties) (oProduct.getProperties().clone())));
 
       } else {
@@ -772,7 +791,7 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
 // get the line product tax
       TaxInfo tax = taxeslogic.getTaxInfo(oProduct.getTaxCategoryID(), m_oTicket.getCustomer());
 
-      addTicketLine(new TicketLineInfo(oProduct, dMul,1, dPrice, tax,
+      addTicketLine(new TicketLineInfo(oProduct, dMul,1,null,null,null,null,null,null,null,null,null,false, dPrice, tax,
               (java.util.Properties) (oProduct.getProperties().clone())));
 
 //            if (oProduct.getID().equals("xxx999_999xxx_x9x9x9")){
@@ -793,6 +812,7 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
     if (executeEventAndRefresh("ticket.addline", new ScriptArg("line", oLine)) == null) {
       if (oLine.isProductCom()) {
         int i = m_ticketlines.getSelectedIndex();
+        
 
         if (i >= 0 && !m_oTicket.getLine(i).isProductCom()) {
           i++;
@@ -1141,6 +1161,7 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
                       sCode + " - "
                               + AppLocal.getIntString("message.noproduct"),
                       "Check", JOptionPane.WARNING_MESSAGE);
+              
               stateToZero();                                          // clear the user input
 
             } else if ("EAN-13".equals(oProduct.getCodetype())) {        // have a valid barcode
@@ -1785,7 +1806,33 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
         addTicketLine(product, getPorValue(), -product.getPriceSell());
 
       } else if (cTrans == ' ' || cTrans == '=') {
-        if (m_oTicket.getLinesCount() > 0) {
+        int validate=0;
+        for(int i = 0 ;i < m_oTicket.getLinesCount();i++){
+            String catBocel=m_oTicket.getLine(i).getCatBocel();
+            String patahHadware=m_oTicket.getLine(i).getPatahHadware();
+            String kainBercak=m_oTicket.getLine(i).getKainBerbercak();
+            String kainPudar=m_oTicket.getLine(i).getKainPudar();
+            String kainLuntur=m_oTicket.getLine(i).getKainLuntur();
+            String merk=m_oTicket.getLine(i).getMerk();
+            String model=m_oTicket.getLine(i).getModel();
+            String warna=m_oTicket.getLine(i).getWarna();
+            Double price=m_oTicket.getLine(i).getPrice();
+            System.out.println("CAT BOCEL =="+catBocel);
+            System.out.println("PATAH HADWARE =="+patahHadware);
+            System.out.println("KAIN BERCAK =="+kainBercak);
+            System.out.println("KAIN PUDAR =="+kainPudar);
+            System.out.println("KAIN LUNTUR =="+kainLuntur);
+            System.out.println("MERK =="+merk);
+            System.out.println("MODEL =="+model);
+            System.out.println("WARNA =="+warna);
+            System.out.println("PRICE =="+price);
+            
+            if(catBocel == null || null == patahHadware || kainBercak == null || kainPudar == null || kainLuntur == null || merk == null || "".equals(merk) || model == null || "".equals(model) || warna == null || "".equals(warna)){
+                validate+=1;
+            }
+        }
+        if (m_oTicket.getLinesCount() > 0 && validate == 0) {
+            
           if (closeTicket(m_oTicket, m_oTicketExt)) {
             m_ticketsbag.deleteTicket();
             String autoLogoff = (m_App.getProperties().getProperty("till.autoLogoff"));
@@ -1856,6 +1903,8 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
       objItems.addProperty("enddate", "");
       objItems.addProperty("check_cash", ticket.getTicketId());
       objItems.addProperty("partner", "");
+      objItems.addProperty("id_cashsale",ticket.getCashsaleId());
+      
       JsonArray listProductIdArray=new JsonArray();
       JsonArray listProductPriceArray=new JsonArray();
       JsonArray listProductQtyArray=new JsonArray();
@@ -1867,13 +1916,22 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
       JsonArray listProductGrossAmountArray=new JsonArray();
       JsonArray listProductUnitArray=new JsonArray();
       JsonArray listLocationArray=new JsonArray();
+      JsonArray listIsDiambilArray=new JsonArray();
       double totalAmount=0;
       double totalPrice=0;
+      int sudahDiambilCek=0;
         for (int i = 0; i < ticket.getLinesCount(); i++) {
             if (ticket.getLine(i).getProductID() != null)  {
-//                listProductIdArray.add(new JsonPrimitive(ticket.getLine(i).getProductID()));
-                listProductIdArray.add(new JsonPrimitive("184"));
-                listProductPriceArray.add(new JsonPrimitive("-1"));
+                listProductIdArray.add(new JsonPrimitive(ticket.getLine(i).getProductID()));
+                String price=Double.toString(ticket.getLine(i).getPrice());
+                
+               
+                String hargaReguler=ticket.getLine(i).getProperty("product.hargareguler");
+                String hargaExpress=ticket.getLine(i).getProperty("product.hargaexpress");
+                String priceLevel=price.equals(hargaReguler) ? "9" : price.equals(hargaExpress) ? "8":"-1";
+//                listProductIdArray.add(new JsonPrimitive("184"));
+                System.out.println("PRICE "+price+" || REGULER "+hargaReguler+" || EXPRESS "+hargaExpress+" || PRICE LEVEL ===>"+priceLevel);
+                listProductPriceArray.add(new JsonPrimitive(priceLevel));
                 listProductQtyArray.add(new JsonPrimitive(ticket.getLine(i).getMultiply()));
                 listProductAmountArray.add(new JsonPrimitive(ticket.getLine(i).getSubValue()));
                 listProductRateArray.add(new JsonPrimitive(ticket.getLine(i).getPrice()));
@@ -1882,11 +1940,22 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
                 listTaxAmtArray.add(new JsonPrimitive(""));
                 listProductGrossAmountArray.add(new JsonPrimitive(""));
                 listProductUnitArray.add(new JsonPrimitive(""));
+                Boolean isDiambil=ticket.getLine(i).getItemSudahDiambil();
+                listIsDiambilArray.add(new JsonPrimitive( isDiambil ? true:false));
                 listLocationArray.add(new JsonPrimitive("1"));
                 totalAmount+=ticket.getLine(i).getValue();
                 totalPrice+=ticket.getLine(i).getPrice();
+                
+                if(isDiambil){
+                   sudahDiambilCek +=1;
+                }
             }
         }
+        
+        objItems.addProperty("sudah_diambil_semua",ticket.getLinesCount() == sudahDiambilCek ? true :false);
+        
+        
+//        param sudah diambil semua
 //        liast list payment method
         double totalAmountMinus=totalAmount * -1;
         double totalPriceMinus=totalAmount * -1;
@@ -1937,6 +2006,7 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
             listTaxAmtArray.add(new JsonPrimitive(""));
             listProductGrossAmountArray.add(new JsonPrimitive(p.getTotal()*-1));
             listProductUnitArray.add(new JsonPrimitive(""));
+            listIsDiambilArray.add(new JsonPrimitive(false));
             listLocationArray.add(new JsonPrimitive("1"));
         });
         
@@ -1954,6 +2024,7 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
       objItemsDetail.add("item_tax1amt",listTaxAmtArray);
       objItemsDetail.add("item_grossamt",listProductGrossAmountArray);
       objItemsDetail.add("item_units",listProductUnitArray);
+      objItemsDetail.add("item_sudahDiambil",listIsDiambilArray);
       objItemsDetail.add("item_price",listProductPriceArray);
       objItemsDetail.add("item_location",listLocationArray);
       
@@ -2026,11 +2097,13 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
                 String Message=je.getAsJsonObject().get("status").getAsString();
                 int poin=je.getAsJsonObject().get("poinEarned").getAsInt();
                 int totalPoin=je.getAsJsonObject().get("totalPoin").getAsInt();
+                String idCashSale=je.getAsJsonObject().get("idCashSale").getAsString();
                 System.out.println(cekStatusPostToNs+" ==>Balikan Dari Method");
                 boolean statusPosToNs="OK".equals(Message) ? true:false;
                 ticket.setPoin(poin);
+                ticket.setCashsaleId(idCashSale);
                 ticket.setTotalPoin(totalPoin);
-                System.out.println("POIN ==>"+ticket.getPoin());
+                //System.out.println("POIN ==>"+ticket.getPoin());
                 
                 dlSales.saveTicket(ticket, m_App.getInventoryLocation());
                 m_config.setProperty("lastticket.number", Integer.toString(ticket.getTicketId()));
@@ -2041,6 +2114,7 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
                 MessageInf msg = new MessageInf(MessageInf.SGN_NOTICE, AppLocal.getIntString("message.nosaveticket"), eData);
                 msg.show(this);
               } catch (IOException ex) {
+                  
                 log.error(ex.getMessage());
               }
 

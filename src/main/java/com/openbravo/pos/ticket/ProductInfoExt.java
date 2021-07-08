@@ -66,6 +66,9 @@ public class ProductInfoExt {
     public String supplierid;
     private String uomid;   
     protected String memodate;
+    private String m_sSatuan;
+    private double hargaExpress;
+    private double hargaReguler;
 
     public ProductInfoExt() {
         m_ID = null;
@@ -98,6 +101,9 @@ public class ProductInfoExt {
         supplierid = "0";
         uomid = "0";        
         memodate = null;
+        m_sSatuan=null;
+        hargaExpress=0.0;
+        hargaReguler=0.0;
     }
 
     /**
@@ -110,6 +116,7 @@ public class ProductInfoExt {
     public final void setID(String id) {
         m_ID = id;
     }
+    
 
     public final String getReference() {
         return m_sRef;
@@ -135,6 +142,11 @@ public class ProductInfoExt {
     public final String getName() {
         return m_sName;
     }
+    
+    public final String getSatuan() {
+        return m_sSatuan;
+    }
+    
     public final void setName(String sName) {
         m_sName = sName;
     }
@@ -142,8 +154,25 @@ public class ProductInfoExt {
     public final double getPriceBuy() {
         return m_dPriceBuy;
     }
+    
+    public final double getHargaExpress() {
+        return hargaExpress;
+    }
+    
     public final void setPriceBuy(double dPrice) {
         m_dPriceBuy = dPrice;
+    }
+    
+    public final void setHargaExpress(double dPrice) {
+        hargaExpress = dPrice;
+    }
+    
+    public final double getHargaReguler() {
+        return hargaReguler;
+    }
+    
+    public final void setHargaReguler(double dPrice) {
+        hargaReguler = dPrice;
     }
 
     public final double getPriceSell() {
@@ -371,6 +400,9 @@ public class ProductInfoExt {
                 product.supplierid = dr.getString(28);
                 product.uomid = dr.getString(29);
                 product.memodate = dr.getString(30);
+                product.m_sSatuan = dr.getString(31);
+                product.hargaExpress = dr.getDouble(32);
+                product.hargaReguler = dr.getDouble(33);
 
                 return product;
             }
