@@ -749,8 +749,15 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
     TaxInfo taxe = taxeslogic.getTaxInfo(oProduct.getTaxCategoryID(), m_oTicket.getCustomer());
     TicketLineInfo newline =null;
       try {
-          newline=JProductSelectPrice.showMessage(this, m_App, new TicketLineInfo(oProduct, dMul,1,null,null,null,null,null,null,null,null,null,false, dPrice, taxe,
-                  (java.util.Properties) (oProduct.getProperties().clone())));
+          TokenBasedAuth tokenBasedAuth=new com.openbravo.pos.forms.TokenBasedAuth(m_App);
+          String getHost = tokenBasedAuth.getHost();
+          
+          System.out.println("get host : " + getHost);
+          if(!getHost.equals("YESAYAPC")) {
+             newline=JProductSelectPrice.showMessage(this, m_App, new TicketLineInfo(oProduct, dMul,1,null,null,null,null,null,null,null,null,null,false, dPrice, taxe,
+                  (java.util.Properties) (oProduct.getProperties().clone()))); 
+          }
+          
       } catch (BasicException ex) {
           Logger.getLogger(JPanelTicket.class.getName()).log(Level.SEVERE, null, ex);
       }
@@ -765,7 +772,7 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
       if (m_jaddtax.isSelected()) {
         dPrice /= (1 + tax.getRate());
       }
-
+      
       addTicketLine(new TicketLineInfo(oProduct, dMul,1,null,null,null,null,null,null,null,null,null,false, dPrice, tax,
               (java.util.Properties) (oProduct.getProperties().clone())));
 

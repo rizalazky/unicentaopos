@@ -43,11 +43,11 @@ public class TokenBasedAuth {
 //define("NETSUITE_TOKEN_ID", '61bfde99e22637154962606734227c1cafeb76508d9cfda255a63315dd5801f8');
 //define("NETSUITE_TOKEN_SECRET", '86e79cb0ad1543cc7825aebefb2c1ca39c971b7e827c5e2022622bf5de07029c');
     
-    private static final String TOKEN_ID = "61bfde99e22637154962606734227c1cafeb76508d9cfda255a63315dd5801f8";
-    private static final String TOKEN_SECRET = "86e79cb0ad1543cc7825aebefb2c1ca39c971b7e827c5e2022622bf5de07029c";
+    private static final String TOKEN_ID = "ad5a7b874b3b3f83613152e0ff1235a29500cd5a46d9e8244df050d38a50cf7a";
+    private static final String TOKEN_SECRET = "4adc68eec587aaa3b73b5ff690e24cea81827a964dde5eae6b8f7a19914e20e2";
     private static final String REST_URL = "https://7131410.restlets.api.netsuite.com/app/site/hosting/restlet.nl";
-    private static final String CONSUMER_KEY = "f173bb9a174fe9d259d7c1dcd260456cedb192a7d819ac17c5d9055dbaf2dd78";
-    private static final String CONSUMER_SECRET = "04d673de32bca8bca7e004dba0326ed03c2d4b4379c230ab637065870b9abc54";
+    private static final String CONSUMER_KEY = "8ce6f98fbb115b67ae34134671bca711eed87b39128f893c507f89fb97d0ad21";
+    private static final String CONSUMER_SECRET = "069fd315a5ac34b90b1df3db58bd29828cbff37f3769f2ec84a76bfb854e59c1";
     private static final String REALM = "7131410";
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String APP_JSON = "application/json";
@@ -460,8 +460,11 @@ public class TokenBasedAuth {
     public void categoryInit() throws IOException{
       try {
 //          TokenBasedAuth tokenBasedAuth=new com.openbravo.pos.forms.TokenBasedAuth();
+          String getHost = getHost();
+          System.out.println("GET HOST: "+ getHost);
+
           String responseString=getMasterCategory();
-          System.out.println("Response Cat : "+responseString);
+          System.out.println("Response Cat Token Base: "+ responseString);
           JsonElement je = new JsonParser().parse(responseString);
           int jsonLength=je.getAsJsonArray().size();
           
@@ -470,6 +473,8 @@ public class TokenBasedAuth {
           //insert data from netsuite to databse unicenta
           for(int i=0;i<jsonLength;i++){
               try {
+                  System.out.println("Masuk loop");
+
                   Object[] newcat = new Object[6];
                   newcat[0] = je.getAsJsonArray().get(i).getAsJsonObject().get("id").getAsString();
                   newcat[1] = je.getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString();
