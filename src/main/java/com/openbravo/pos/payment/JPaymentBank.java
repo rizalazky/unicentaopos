@@ -90,7 +90,9 @@ public class JPaymentBank extends javax.swing.JPanel implements JPaymentInterfac
      */
     @Override
     public PaymentInfo executePayment() {
-        return new PaymentInfoTicket(m_dPaid, "bank");      
+        String labelKey=jComboBoxBankAccount.getSelectedItem().toString();
+        System.out.println("TYPE BANK"+labelKey);
+        return new PaymentInfoTicket(m_dPaid, "Bank");      
     }
 
     /**

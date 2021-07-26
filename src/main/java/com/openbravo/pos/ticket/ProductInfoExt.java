@@ -69,6 +69,7 @@ public class ProductInfoExt {
     private String m_sSatuan;
     private double hargaExpress;
     private double hargaReguler;
+    private boolean isvoucher;
 
     public ProductInfoExt() {
         m_ID = null;
@@ -104,6 +105,7 @@ public class ProductInfoExt {
         m_sSatuan=null;
         hargaExpress=0.0;
         hargaReguler=0.0;
+        isvoucher=false;
     }
 
     /**
@@ -171,8 +173,16 @@ public class ProductInfoExt {
         return hargaReguler;
     }
     
+    public final boolean isvoucher(){
+        return isvoucher;
+    }
+    
     public final void setHargaReguler(double dPrice) {
         hargaReguler = dPrice;
+    }
+    
+    public final void setIsVoucher(boolean para){
+        isvoucher=para;
     }
 
     public final double getPriceSell() {
@@ -403,6 +413,7 @@ public class ProductInfoExt {
                 product.m_sSatuan = dr.getString(31);
                 product.hargaExpress = dr.getDouble(32);
                 product.hargaReguler = dr.getDouble(33);
+                product.isvoucher =dr.getBoolean(34);
 
                 return product;
             }

@@ -75,7 +75,7 @@ public class PaymentInfoCash extends PaymentInfo {
     
     @Override
     public String getName() {
-        return "cash";
+        return "Tunai";
     }
     @Override
     public double getTotal() {

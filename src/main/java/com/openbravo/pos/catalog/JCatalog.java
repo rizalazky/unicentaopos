@@ -358,15 +358,15 @@ public class JCatalog extends JPanel implements ListSelectionListener, CatalogSe
             if (taxesincluded) {
                 TaxInfo tax = taxeslogic.getTaxInfo(product.getTaxCategoryID());
                 if(!"".equals(product.getDisplay())){
-                    return "<html><center style='font-size:14px;'>" + product.getDisplay() + "<br>" + product.printPriceSellTax(tax);                
+                    return "<html><center style='font-size:14px;'>" + product.getDisplay() + "<br><br>";                
                 } else {
-                    return "<html><center style='font-size:14px;'>" + product.getName() + "<br>" + product.printPriceSellTax(tax);                                    
+                    return "<html><center style='font-size:14px;'>" + product.getName() + "<br><br>" ;                                    
                 }
             } else {
                 if(!"".equals(product.getDisplay())){
-                    return "<html><center style='font-size:14px;'>" + product.getDisplay() + "<br>" + product.printPriceSell();                
+                    return "<html><center style='font-size:14px;'>" + product.getDisplay() + "<br><br>" ;                
                 } else {
-                    return "<html><center style='font-size:14px;'>" + product.getName() + "<br>" + product.printPriceSell();                
+                    return "<html><center style='font-size:14px;'>" + product.getName() + "<br><br>" ;                
                 }                
             }
         } else {
@@ -376,7 +376,7 @@ public class JCatalog extends JPanel implements ListSelectionListener, CatalogSe
             } else {
                 return product.getName();
             }
-        }
+        } 
     }
     
     private void selectIndicatorPanel(Icon icon, String label, String texttip) {

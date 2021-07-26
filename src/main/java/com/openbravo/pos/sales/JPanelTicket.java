@@ -83,6 +83,7 @@ import java.util.function.BiConsumer;
 
 import static java.awt.Window.getWindows;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -160,6 +161,7 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
   private RestaurantDBUtils restDB;
   private KitchenDisplay kitchenDisplay;
   private String ticketPrintType;
+  private String typeMachine="";
 
   private Boolean warrantyPrint = false;
 
@@ -170,6 +172,11 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
   private Integer count = 0;
   private Integer oCount = 0;
   private Boolean pinOK;
+  
+  private JsonElement jsonResponsePosNf;
+  private JsonElement listPayment;
+  private String location;
+  private String department;
 
 
   /**
@@ -199,8 +206,17 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
       m_jTicketId.setFont(new java.awt.Font("Arial", 1, 25));
      
     TokenBasedAuth tok=new TokenBasedAuth(app);
+    String resultPosConf;
+    
     try {
         tok.categoryInit();
+        resultPosConf=tok.getPosConfiguration();
+            System.out.println("POS Configuration"+ resultPosConf);
+            jsonResponsePosNf = new JsonParser().parse(resultPosConf);
+            listPayment=jsonResponsePosNf.getAsJsonArray().get(0).getAsJsonObject().get("paymentList").getAsJsonArray();
+            location=jsonResponsePosNf.getAsJsonArray().get(0).getAsJsonObject().get("pmc_location").getAsString();
+            department=jsonResponsePosNf.getAsJsonArray().get(0).getAsJsonObject().get("pmc_department").getAsString();
+            typeMachine=jsonResponsePosNf.getAsJsonArray().get(0).getAsJsonObject().get("pmc_tipekasir").getAsString();
     } catch (IOException ex) {
         Logger.getLogger(JPanelTicket.class.getName()).log(Level.SEVERE, null, ex);
     }
@@ -210,6 +226,10 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
 
     m_App = app;
     restDB = new RestaurantDBUtils(m_App);
+    
+    m_config.setProperty("machine.typemachine", typeMachine);
+
+    System.out.println("TYPE MACHINE ==>"+m_config.getProperty("machine.typemachine"));
 
     dlSystem = (DataLogicSystem) m_App.getBean("com.openbravo.pos.forms.DataLogicSystem");
     dlSales = (DataLogicSales) m_App.getBean("com.openbravo.pos.forms.DataLogicSales");
@@ -748,16 +768,19 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
     
     TaxInfo taxe = taxeslogic.getTaxInfo(oProduct.getTaxCategoryID(), m_oTicket.getCustomer());
     TicketLineInfo newline =null;
-      try {
-          newline=JProductSelectPrice.showMessage(this, m_App, new TicketLineInfo(oProduct, dMul,1,null,null,null,null,null,null,null,null,null,false, dPrice, taxe,
-                  (java.util.Properties) (oProduct.getProperties().clone())));
-      } catch (BasicException ex) {
-          Logger.getLogger(JPanelTicket.class.getName()).log(Level.SEVERE, null, ex);
-      }
+    if(typeMachine.contains("1") && !oProduct.isvoucher()){
+        try {
+            newline=JProductSelectPrice.showMessage(this, m_App, new TicketLineInfo(oProduct, dMul,1,null,null,null,null,null,null,null,null,null,false,null,null,null, dPrice, taxe,
+              (java.util.Properties) (oProduct.getProperties().clone())));
+        } catch (BasicException ex) {
+            Logger.getLogger(JPanelTicket.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
       if(newline !=null){
           dPrice=newline.getPrice();
       }
-      System.out.println("Price Dari JPanel="+dPrice);
+
 //    selectPrice.setVisible(true);
     if (oProduct.isVprice()) {
       TaxInfo tax = taxeslogic.getTaxInfo(oProduct.getTaxCategoryID(), m_oTicket.getCustomer());
@@ -766,7 +789,7 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
         dPrice /= (1 + tax.getRate());
       }
 
-      addTicketLine(new TicketLineInfo(oProduct, dMul,1,null,null,null,null,null,null,null,null,null,false, dPrice, tax,
+      addTicketLine(new TicketLineInfo(oProduct, dMul,1,null,null,null,null,null,null,null,null,null,false,null,null,null, dPrice, tax,
               (java.util.Properties) (oProduct.getProperties().clone())));
 
     } else if (oProduct.getID().equals("xxx998_998xxx_x8x8x8")) {
@@ -780,7 +803,7 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
         scharge = Double.parseDouble(SCRate);
         scharge = m_oTicket.getTotal() * (scharge / 100);
 
-        addTicketLine(new TicketLineInfo(oProduct, 1,1,null,null,null,null,null,null,null,null,null,false, scharge, tax,
+        addTicketLine(new TicketLineInfo(oProduct, 1,1,null,null,null,null,null,null,null,null,null,false,null,null,null, scharge, tax,
                 (java.util.Properties) (oProduct.getProperties().clone())));
 
       } else {
@@ -791,7 +814,7 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
 // get the line product tax
       TaxInfo tax = taxeslogic.getTaxInfo(oProduct.getTaxCategoryID(), m_oTicket.getCustomer());
 
-      addTicketLine(new TicketLineInfo(oProduct, dMul,1,null,null,null,null,null,null,null,null,null,false, dPrice, tax,
+      addTicketLine(new TicketLineInfo(oProduct, dMul,1,null,null,null,null,null,null,null,null,null,false,null,null,null, dPrice, tax,
               (java.util.Properties) (oProduct.getProperties().clone())));
 
 //            if (oProduct.getID().equals("xxx999_999xxx_x9x9x9")){
@@ -1827,9 +1850,12 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
             System.out.println("WARNA =="+warna);
             System.out.println("PRICE =="+price);
             
-            if(catBocel == null || null == patahHadware || kainBercak == null || kainPudar == null || kainLuntur == null || merk == null || "".equals(merk) || model == null || "".equals(model) || warna == null || "".equals(warna)){
-                validate+=1;
+            if(typeMachine.equals("1")){
+                if(m_oTicket.getLine(i).getProperty("product.isvoucher").equals("false") && (catBocel == null || null == patahHadware || kainBercak == null || kainPudar == null || kainLuntur == null || merk == null || "".equals(merk) || model == null || "".equals(model) || warna == null || "".equals(warna))){
+                    validate+=1;
+                }
             }
+
         }
         if (m_oTicket.getLinesCount() > 0 && validate == 0) {
             
@@ -1859,6 +1885,13 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
     }
   }
   
+  private String formatDateToNetSuite(LocalDate dateParam){
+      DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+      String formattedDate = dateParam.format(myFormatObj);
+      
+      return formattedDate;
+  }
+  
    private String postDataToNetsuite(TicketInfo ticket) throws BasicException{
       if (ticket.getTicketId() == 0) {
          
@@ -1882,7 +1915,7 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
       LocalDate now = LocalDate.now();
       DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("MM/dd/yyyy");
 
-        String formattedDate = now.format(myFormatObj);
+      String formattedDate = now.format(myFormatObj);
       JsonObject data=new JsonObject();
       data.addProperty("type","create_cash_sale");
       JsonObject objItems=new JsonObject();
@@ -1893,17 +1926,18 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
 //      objItems.addProperty("trandate",ticket.getDate().toString());
       objItems.addProperty("trandate",formattedDate);
         
-      objItems.addProperty("location_id", "1");
+      objItems.addProperty("location_id", location);
       objItems.addProperty("postingperiod", "");
-      objItems.addProperty("departement", "3");
+      objItems.addProperty("departement", department);
       objItems.addProperty("class_cash", "");
       objItems.addProperty("discountitem", "");
       objItems.addProperty("rate_sq", "");
-      objItems.addProperty("salesrep", "");//harus integrasi dari netsuite ??
+       objItems.addProperty("sales_rep", "");
+      objItems.addProperty("username_employee", ticket.getUser().getName());//harus integrasi dari netsuite ??
       objItems.addProperty("enddate", "");
       objItems.addProperty("check_cash", ticket.getTicketId());
       objItems.addProperty("partner", "");
-      objItems.addProperty("id_cashsale",ticket.getCashsaleId());
+      objItems.addProperty("id_cashsale",ticket.getCashsaleId() == null ? "" :ticket.getCashsaleId());
       
       JsonArray listProductIdArray=new JsonArray();
       JsonArray listProductPriceArray=new JsonArray();
@@ -1917,18 +1951,29 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
       JsonArray listProductUnitArray=new JsonArray();
       JsonArray listLocationArray=new JsonArray();
       JsonArray listIsDiambilArray=new JsonArray();
+      JsonArray listNamaPenerima=new JsonArray();
+      JsonArray listNoHpPenerima=new JsonArray();
+      JsonArray listDiKerjakanOleh=new JsonArray();
+      JsonArray listVoucherNumber=new JsonArray();
+      JsonArray listVoucherId=new JsonArray();
+      JsonArray listVoucherActiveDate=new JsonArray();
+      JsonArray listVoucherExpiredDate=new JsonArray();
+      JsonArray listRedeemDate=new JsonArray();
+      JsonArray listVoucherStatus=new JsonArray();
+      
       double totalAmount=0;
       double totalPrice=0;
       int sudahDiambilCek=0;
         for (int i = 0; i < ticket.getLinesCount(); i++) {
             if (ticket.getLine(i).getProductID() != null)  {
+//                listProductIdArray.add(new JsonPrimitive("603"));
                 listProductIdArray.add(new JsonPrimitive(ticket.getLine(i).getProductID()));
                 String price=Double.toString(ticket.getLine(i).getPrice());
                 
-               
                 String hargaReguler=ticket.getLine(i).getProperty("product.hargareguler");
                 String hargaExpress=ticket.getLine(i).getProperty("product.hargaexpress");
-                String priceLevel=price.equals(hargaReguler) ? "9" : price.equals(hargaExpress) ? "8":"-1";
+                String isVoucher=ticket.getLine(i).getProperty("product.isvoucher");
+                String priceLevel=price.equals(hargaReguler) && isVoucher.equals("false") ? "9" : price.equals(hargaExpress) && isVoucher.equals("false") ? "8":"-1";
 //                listProductIdArray.add(new JsonPrimitive("184"));
                 System.out.println("PRICE "+price+" || REGULER "+hargaReguler+" || EXPRESS "+hargaExpress+" || PRICE LEVEL ===>"+priceLevel);
                 listProductPriceArray.add(new JsonPrimitive(priceLevel));
@@ -1938,11 +1983,24 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
                 listTaxcodeArray.add(new JsonPrimitive("5"));
                 listTaxrateArray.add(new JsonPrimitive(ticket.getLine(i).getTaxRate() * 100));
                 listTaxAmtArray.add(new JsonPrimitive(""));
+                listNamaPenerima.add(new JsonPrimitive(ticket.getLine(i).getNamaPengambil() != null ? ticket.getLine(i).getNamaPengambil() : ""));
+                listNoHpPenerima.add(new JsonPrimitive(ticket.getLine(i).getNoHpPengambil() != null ? ticket.getLine(i).getNoHpPengambil() : ""));
+                listDiKerjakanOleh.add(new JsonPrimitive(ticket.getLine(i).getDiKerjakanOleh() != null ?ticket.getLine(i).getDiKerjakanOleh() : ""));
                 listProductGrossAmountArray.add(new JsonPrimitive(""));
                 listProductUnitArray.add(new JsonPrimitive(""));
                 Boolean isDiambil=ticket.getLine(i).getItemSudahDiambil();
                 listIsDiambilArray.add(new JsonPrimitive( isDiambil ? true:false));
                 listLocationArray.add(new JsonPrimitive("1"));
+                listVoucherId.add(new JsonPrimitive(ticket.getLine(i).getProperty("ticket.voucherid") != null ? ticket.getLine(i).getProperty("ticket.voucherid") : ""));
+                listVoucherNumber.add(new JsonPrimitive(ticket.getLine(i).getProperty("ticket.vouchernumber") != null ? ticket.getLine(i).getProperty("ticket.vouchernumber") : ""));
+                listVoucherActiveDate.add(new JsonPrimitive(ticket.getLine(i).getProperty("ticket.voucherid") != null ? formattedDate : ""));
+                LocalDate dateEx=voucherDateExpired().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                String expiredFormatedDate=formatDateToNetSuite(dateEx);
+                listVoucherExpiredDate.add(new JsonPrimitive(ticket.getLine(i).getProperty("ticket.voucherid") != null ? expiredFormatedDate:""));
+                listRedeemDate.add(new JsonPrimitive(""));
+                listVoucherStatus.add(new JsonPrimitive(ticket.getLine(i).getProperty("ticket.voucherid") != null ? "1": ""));
+                
+                
                 totalAmount+=ticket.getLine(i).getValue();
                 totalPrice+=ticket.getLine(i).getPrice();
                 
@@ -1960,42 +2018,20 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
         double totalAmountMinus=totalAmount * -1;
         double totalPriceMinus=totalAmount * -1;
         ticket.getPayments().forEach((p)->{
-            System.out.println("Payment Name==>"+p.getName()+"|| Paid ==>"+p.getPaid()+"|| Total ==>"+p.getTotal());
-            String paymentType;
-            switch (p.getName()) {
-                case "cash":
-                    paymentType="169";
-                    break;
-                case "bank":
-                    paymentType="170";
-                    break;
-                case "ovo":
-                    paymentType="172";
-                    break;
-                case "dana":
-                    paymentType="169";//belum ada item
-                    break;
-                case "qris":
-                    paymentType="169";//belum ada item
-                    break;
-                case "gopay":
-                    paymentType="171";
-                    break;
-                case "voucher":
-                    paymentType="214";
-                    break;
-                case "debit":
-                    paymentType="174";
-                    break;
-                case "card":
-                    paymentType="174";//debit card
-                    break;
-                case "hutang":
-                    paymentType="169";//debit card
-                    break;
-                default:
-                    paymentType="169";
+            String paymentType="";
+            String paymentNameLocal=p.getName();
+            System.out.println("PaymentName Local"+paymentNameLocal);
+            int listPaymentLength=jsonResponsePosNf.getAsJsonArray().get(0).getAsJsonObject().get("paymentList").getAsJsonArray().size();
+            for(int j=0;j<listPaymentLength;j++){
+                String paymentName=jsonResponsePosNf.getAsJsonArray().get(0).getAsJsonObject().get("paymentList").getAsJsonArray().get(j).getAsJsonObject().get("name").getAsString();
+                String paymentIdNs=jsonResponsePosNf.getAsJsonArray().get(0).getAsJsonObject().get("paymentList").getAsJsonArray().get(j).getAsJsonObject().get("id").getAsString();
+                if(paymentNameLocal.toLowerCase().equals(paymentName.toLowerCase())){
+                   System.out.println("Payment"+paymentNameLocal+"---"+paymentName);
+                   paymentType=paymentIdNs; 
+                }
             }
+            System.out.println("Payment Name==>"+p.getName()+"|| Paid ==>"+p.getPaid()+"|| Total ==>"+p.getTotal());
+//            
             listProductIdArray.add(new JsonPrimitive(paymentType));
             listProductPriceArray.add(new JsonPrimitive("-1"));
             listProductQtyArray.add(new JsonPrimitive(""));
@@ -2004,10 +2040,40 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
             listTaxcodeArray.add(new JsonPrimitive("5"));
             listTaxrateArray.add(new JsonPrimitive(0));
             listTaxAmtArray.add(new JsonPrimitive(""));
+            listNamaPenerima.add(new JsonPrimitive(""));
+                listNoHpPenerima.add(new JsonPrimitive(""));
+                listDiKerjakanOleh.add(new JsonPrimitive(""));
             listProductGrossAmountArray.add(new JsonPrimitive(p.getTotal()*-1));
             listProductUnitArray.add(new JsonPrimitive(""));
             listIsDiambilArray.add(new JsonPrimitive(false));
             listLocationArray.add(new JsonPrimitive("1"));
+            if(paymentNameLocal.toLowerCase().equals("voucher")){
+                listVoucherNumber.add(new JsonPrimitive(""));
+                listVoucherId.add(new JsonPrimitive(p.getVoucher()));
+                listVoucherActiveDate.add(new JsonPrimitive(""));
+//                LocalDate dateEx=voucherDateExpired().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+//                String expiredFormatedDate=formatDateToNetSuite(dateEx);
+                listVoucherExpiredDate.add(new JsonPrimitive(""));
+                listRedeemDate.add(new JsonPrimitive(formattedDate));
+                listVoucherStatus.add(new JsonPrimitive("3"));
+                
+                try {
+                    updateVoucher(p.getVoucher(),"B");
+                } catch (BasicException ex) {
+                    Logger.getLogger(JPanelTicket.class.getName()).log(Level.SEVERE, null, ex);
+                }
+             
+            }else{
+                listVoucherNumber.add(new JsonPrimitive(""));
+                listVoucherId.add(new JsonPrimitive(""));
+                listVoucherActiveDate.add(new JsonPrimitive(""));
+//                LocalDate dateEx=voucherDateExpired().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+//                String expiredFormatedDate=formatDateToNetSuite(dateEx);
+                listVoucherExpiredDate.add(new JsonPrimitive(""));
+                listRedeemDate.add(new JsonPrimitive(""));
+                listVoucherStatus.add(new JsonPrimitive(""));
+            }
+            
         });
         
       System.out.println(listProductIdArray.toString());
@@ -2027,7 +2093,16 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
       objItemsDetail.add("item_sudahDiambil",listIsDiambilArray);
       objItemsDetail.add("item_price",listProductPriceArray);
       objItemsDetail.add("item_location",listLocationArray);
-      
+      objItemsDetail.add("item_location",listLocationArray);
+      objItemsDetail.add("item_nama_penerima",listNamaPenerima);
+      objItemsDetail.add("item_nohp_penerima",listNoHpPenerima);
+      objItemsDetail.add("item_vendor_cleanliving",listDiKerjakanOleh);
+      objItemsDetail.add("item_nomer_voucher",listVoucherNumber);
+      objItemsDetail.add("item_voucher_id",listVoucherId);
+      objItemsDetail.add("item_active_voucher",listVoucherActiveDate);
+      objItemsDetail.add("item_expired_voucher",listVoucherExpiredDate);
+      objItemsDetail.add("item_redeemdate_voucher",listRedeemDate);
+      objItemsDetail.add("item_status_voucher",listVoucherStatus);
       JsonObject paymentMethod=new JsonObject();
       
       data.add("objItems",objItems);
@@ -2045,6 +2120,42 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
      
       return responseString;      
   }
+   
+   private void saveVoucher(String IdVoucher,String noVoucher,String nameCustomer) throws BasicException{
+       System.out.println("NOMER TIKET"+ noVoucher);
+       
+        java.util.Date dateExpired=voucherDateExpired();
+        System.out.println("DATE EXPIRED =="+dateExpired);
+        Double amount=100000.00;
+        
+       Object[] newVoucher = new Object[6];
+       newVoucher[0]=IdVoucher;
+       newVoucher[1]=noVoucher;
+       newVoucher[2]=nameCustomer;
+       newVoucher[3]=amount;
+       newVoucher[4]="A";
+       newVoucher[5]=dateExpired;
+       dlSales.saveVoucher(newVoucher);
+   }
+   
+   private void updateVoucher(String IdVoucher,String status) throws BasicException{
+       
+       Object[] updateVoucher = new Object[2];
+       updateVoucher[0]=status;
+       updateVoucher[1]=IdVoucher;
+       
+       dlSales.updateVoucher(updateVoucher);
+   }
+   
+   private java.util.Date voucherDateExpired(){
+      java.util.Date dateExpired=new Date();
+      Calendar c = Calendar.getInstance(); 
+      c.setTime(dateExpired); 
+      c.add(Calendar.YEAR, 1);
+      dateExpired = c.getTime();
+      
+      return dateExpired;
+   }
 
 
   private boolean closeTicket(TicketInfo ticket, Object ticketext) {
@@ -2089,8 +2200,11 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
             if (executeEvent(ticket, ticketext, "ticket.save") == null) {
 
               try {
-                System.out.println("Halo Save Ticket");
+                
 //                method postToNetsuite
+
+                 
+                 
                 String cekStatusPostToNs=postDataToNetsuite(ticket);
                 
                 JsonElement je = new JsonParser().parse(cekStatusPostToNs);//parsing response to json
@@ -2103,6 +2217,15 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
                 ticket.setPoin(poin);
                 ticket.setCashsaleId(idCashSale);
                 ticket.setTotalPoin(totalPoin);
+                
+                for(int j=0;j < ticket.getLinesCount();j++){
+                    if(ticket.getLine(j).getProperty("product.isvoucher").equals("true")){
+                        String noTicket=ticket.getLine(j).getProperty("ticket.vouchernumber");
+                        String voucherId=ticket.getLine(j).getProperty("ticket.voucherid");
+                        String nameCustomer=ticket.getCustomer() != null ? ticket.getCustomer().getName() :"";
+                        saveVoucher(voucherId,noTicket,nameCustomer);
+                    }
+                }
                 //System.out.println("POIN ==>"+ticket.getPoin());
                 
                 dlSales.saveTicket(ticket, m_App.getInventoryLocation());
@@ -2120,11 +2243,18 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
 
               executeEvent(ticket, ticketext, "ticket.close",
                       new ScriptArg("print", paymentdialog.isPrintSelected()));
-
-              printTicket(paymentdialog.isPrintSelected() || warrantyPrint
+              if("1".equals(typeMachine)){
+                    printTicket(paymentdialog.isPrintSelected() || warrantyPrint
+                      ? "Printer.TicketLaundry"
+                      : "Printer.Ticket2", ticket, ticketext);
+                    Notify(AppLocal.getIntString("notify.printing"));
+              }else{
+                  printTicket(paymentdialog.isPrintSelected() || warrantyPrint
                       ? "Printer.Ticket"
                       : "Printer.Ticket2", ticket, ticketext);
-              Notify(AppLocal.getIntString("notify.printing"));
+                   Notify(AppLocal.getIntString("notify.printing"));
+              }
+              
 
               resultok = true;
 

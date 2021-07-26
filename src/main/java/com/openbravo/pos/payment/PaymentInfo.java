@@ -31,7 +31,8 @@ public abstract class PaymentInfo {
     public abstract double getChange();
     public abstract double getTendered();
     public abstract String getCardName();
-    public abstract String getVoucher();        
+    public abstract String getVoucher();
+//    public abstract String getVoucherNumber();
 
     public String printTotal() {
         return Formats.CURRENCY.formatValue(getTotal());

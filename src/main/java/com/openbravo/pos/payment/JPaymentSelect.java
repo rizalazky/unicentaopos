@@ -242,7 +242,7 @@ public abstract class JPaymentSelect extends javax.swing.JDialog
         
         for (int i = 0; i < jsonLength; i++) {
             String idPayment=jsonListPayment.getAsJsonArray().get(0).getAsJsonObject().get("paymentList").getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString();
-            System.out.println("ID Payment==>"+idPayment+" jkey.getKey ==>"+jpay.getKey()+" jkey.getLabelKey ==>"+AppLocal.getIntString(jpay.getLabelKey()));
+            System.out.println("ID Payment==>"+idPayment+" jkey.getKey ==>"+AppLocal.getIntString(jpay.getKey())+" jkey.getLabelKey ==>"+AppLocal.getIntString(jpay.getLabelKey()));
             if(AppLocal.getIntString(jpay.getLabelKey()).equals(idPayment)){
                 cek=cek + 1;
             }
@@ -319,7 +319,7 @@ public abstract class JPaymentSelect extends javax.swing.JDialog
     public class JPaymentVoucherCreator implements JPaymentCreator {
         @Override
         public JPaymentInterface createJPayment() {
-            return new JPaymentVoucherNew(app,JPaymentSelect.this, "voucher");
+            return new JPaymentVoucherNew(app,JPaymentSelect.this, "Voucher");
         }
         @Override
         public String getKey() {
@@ -504,7 +504,7 @@ public abstract class JPaymentSelect extends javax.swing.JDialog
     public class JPaymentOvoCreator implements JPaymentCreator {
         @Override
         public JPaymentInterface createJPayment() {
-            return new JPaymentOvo(JPaymentSelect.this,"ovo");
+            return new JPaymentOvo(JPaymentSelect.this,"Ovo");
         }
         @Override
         public String getKey() {
@@ -523,7 +523,7 @@ public abstract class JPaymentSelect extends javax.swing.JDialog
     public class JPaymentHutangCreator implements JPaymentCreator {
         @Override
         public JPaymentInterface createJPayment() {
-            return new JPaymentOvo(JPaymentSelect.this,"hutang");
+            return new JPaymentOvo(JPaymentSelect.this,"Hutang/Belum Bayar");
         }
         @Override
         public String getKey() {
@@ -543,7 +543,7 @@ public abstract class JPaymentSelect extends javax.swing.JDialog
     public class JPaymentVirtualAccounCreator implements JPaymentCreator {
         @Override
         public JPaymentInterface createJPayment() {
-            return new JPaymentVirtualAccount(JPaymentSelect.this,"VirtualAccount");
+            return new JPaymentVirtualAccount(JPaymentSelect.this,"Payment Gateway");
         }
         @Override
         public String getKey() {
@@ -561,7 +561,7 @@ public abstract class JPaymentSelect extends javax.swing.JDialog
     public class JPaymentDanaCreator implements JPaymentCreator {
         @Override
         public JPaymentInterface createJPayment() {
-            return new JPaymentOvo(JPaymentSelect.this,"dana");
+            return new JPaymentOvo(JPaymentSelect.this,"Dana");
         }
         @Override
         public String getKey() {

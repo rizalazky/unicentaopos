@@ -100,8 +100,11 @@ public class StartPOS {
         log.error("Cannot set Look and Feel", e.getMessage());
       }
 
+//      YBC
+       
       String hostname = config.getProperty("machine.hostname");
       TicketInfo.setHostname(hostname);
+      
 
       String screenmode = config.getProperty("machine.screenmode");
 

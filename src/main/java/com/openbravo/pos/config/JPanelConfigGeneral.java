@@ -18,9 +18,12 @@
 //    along with uniCenta oPOS.  If not, see <http://www.gnu.org/licenses/>.
 package com.openbravo.pos.config;
 
+import com.google.gson.JsonParser;
 import com.openbravo.data.user.DirtyManager;
 import com.openbravo.pos.forms.AppConfig;
 import com.openbravo.pos.forms.AppLocal;
+import com.openbravo.pos.forms.TokenBasedAuth;
+import com.openbravo.pos.payment.JPaymentSelect;
 import com.openbravo.pos.util.FileChooserEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.pushingpixels.substance.api.SubstanceLookAndFeel;
@@ -30,9 +33,12 @@ import org.pushingpixels.substance.api.skin.SkinInfo;
 import javax.swing.*;
 import javax.swing.UIManager.LookAndFeelInfo;
 import java.awt.*;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author JG uniCenta
@@ -163,7 +169,15 @@ public class JPanelConfigGeneral extends javax.swing.JPanel implements PanelConf
 
     config.setProperty("machine.hostname", jtxtMachineHostname.getText());
     config.setProperty("machine.department", jtxtMachineDepartment.getText());
-
+//    TokenBasedAuth tok=new TokenBasedAuth(AppView);
+//    String result;
+//    try {
+//        result=tok.getPosConfiguration();
+//        System.out.println("POS Configuration SAVE"+ result);
+////            jsonListPayment = new JsonParser().parse(result);
+//    } catch (IOException ex) {
+//        Logger.getLogger(JPaymentSelect.class.getName()).log(Level.SEVERE, null, ex);
+//    }
     LAFInfo laf = (LAFInfo) jcboLAF.getSelectedItem();
     config.setProperty("swing.defaultlaf", laf == null
             ? System.getProperty("swing.defaultlaf", "javax.swing.plaf.metal.MetalLookAndFeel")

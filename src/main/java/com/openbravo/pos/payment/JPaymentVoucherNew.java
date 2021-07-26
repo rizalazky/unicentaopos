@@ -49,6 +49,8 @@ public class JPaymentVoucherNew extends javax.swing.JPanel implements JPaymentIn
     private String m_sName;
     private String m_sVoucher1;
     private VoucherInfo m_voucherInfo;
+    private String voucherId;
+   
     
     /** Creates new form JPaymentCash
      * @param notifier */
@@ -101,7 +103,7 @@ public class JPaymentVoucherNew extends javax.swing.JPanel implements JPaymentIn
      */
     @Override
     public PaymentInfo executePayment() {
-        return new PaymentInfoTicket(m_dPaid, m_sName);      
+        return new PaymentInfoTicket(m_dPaid, "Voucher",voucherId);      
     }
 
     /**
@@ -258,6 +260,7 @@ public class JPaymentVoucherNew extends javax.swing.JPanel implements JPaymentIn
             System.out.println("Vou Number ==>"+voucheNumber);
             VoucherInfo m_voucherInfo1 = dlCustomers.getVoucherInfoByNumber(voucheNumber);
             if(m_voucherInfo1 != null){
+                voucherId=m_voucherInfo1.getId();
                 m_sVoucher1 = m_voucherInfo1.getVoucherNumber();
                 Double valueVoucher=m_voucherInfo1.getAmount();
                 String customerName=m_voucherInfo1.getCustomerName();

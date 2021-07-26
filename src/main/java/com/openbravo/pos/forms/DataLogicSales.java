@@ -81,6 +81,8 @@ public class DataLogicSales extends BeanFactoryDataSingle {
      protected SentenceExec m_createProducts;
      protected SentenceExec m_updateProducts;
      protected SentenceExec m_creteProductsCat;
+     protected SentenceExec m_createVoucher;
+     protected SentenceExec m_updateVoucher;
      protected SentenceExec m_creteCustomer;
      protected SentenceExec m_createStockCurrent;
     
@@ -218,6 +220,25 @@ public class DataLogicSales extends BeanFactoryDataSingle {
                 ,new SerializerWriteBasic(new Datas[]{Datas.STRING,Datas.STRING}
         ));
         
+        
+        m_createVoucher=new StaticSentence(s,"INSERT INTO vouchers (id,voucher_number,customer,amount,status,expired_date) VALUES (? , ? ,?,?,?,?) "
+                ,new SerializerWriteBasic(new Datas[]{
+                    Datas.STRING,
+                    Datas.STRING,
+                    Datas.STRING,
+                    Datas.DOUBLE,
+                    Datas.STRING,
+                    Datas.TIMESTAMP}
+        ));
+        
+         m_updateVoucher=new StaticSentence(s,"UPDATE vouchers SET status=? WHERE id=?"
+                ,new SerializerWriteBasic(new Datas[]{
+                    Datas.STRING,
+                    Datas.STRING}
+        ));
+        
+        
+        
         m_createStockCurrent=new StaticSentence(s,"INSERT INTO stockcurrent (location,product,units) VALUES (0,?,?) "
                 +"ON DUPLICATE KEY UPDATE product=?,units=?"
                 ,new SerializerWriteBasic(new Datas[]{
@@ -264,9 +285,9 @@ public class DataLogicSales extends BeanFactoryDataSingle {
         
         
         m_createProducts = new StaticSentence(s,
-                "INSERT INTO products ( ID, REFERENCE, CODE, CATEGORY,NAME , taxcat,pricebuy,pricesell,uom,display,satuan,harga_express,harga_reguler) "
-                        + "VALUES (?, ?, ? ,? ,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE REFERENCE=?, CODE=?, CATEGORY=?,NAME=? , taxcat=?,pricebuy=?,pricesell=?,uom=?,display=?,"
-                        + "satuan=?,harga_express=?,harga_reguler=?"
+                "INSERT INTO products ( ID, REFERENCE, CODE, CATEGORY,NAME , taxcat,pricebuy,pricesell,uom,display,satuan,harga_express,harga_reguler,isvoucher) "
+                        + "VALUES (?, ?, ? ,? ,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE REFERENCE=?, CODE=?, CATEGORY=?,NAME=? , taxcat=?,pricebuy=?,pricesell=?,uom=?,display=?,"
+                        + "satuan=?,harga_express=?,harga_reguler=?,isvoucher=?"
                 , new SerializerWriteBasic(new Datas[]{
                 Datas.STRING,
                 Datas.STRING,
@@ -281,8 +302,8 @@ public class DataLogicSales extends BeanFactoryDataSingle {
                 Datas.STRING,
                 Datas.DOUBLE,
                 Datas.DOUBLE,
+                Datas.BOOLEAN,
                 
-                
                 Datas.STRING,
                 Datas.STRING,
                 Datas.STRING,
@@ -294,7 +315,9 @@ public class DataLogicSales extends BeanFactoryDataSingle {
                 Datas.STRING,
                 Datas.STRING,
                 Datas.DOUBLE,
-                Datas.DOUBLE,})
+                Datas.DOUBLE,
+                Datas.BOOLEAN
+                })
         );
         
         m_updateProducts = new StaticSentence(s,
@@ -348,6 +371,15 @@ public class DataLogicSales extends BeanFactoryDataSingle {
      public final void createProductsCat(Object[] products) throws BasicException {
         m_creteProductsCat.exec(products);
         
+    }
+     
+    public final void saveVoucher(Object[] voucher) throws BasicException {
+       m_createVoucher.exec(voucher);
+
+    }
+    
+    public final void updateVoucher(Object[] voucher) throws BasicException {
+       m_updateVoucher.exec(voucher);
     }
     
     public final void updateProducts(Object[] products) throws BasicException {
@@ -414,7 +446,8 @@ public class DataLogicSales extends BeanFactoryDataSingle {
                 + "MEMODATE, "
                 + "SATUAN, "
                 + "HARGA_EXPRESS, "
-                + "HARGA_REGULER "
+                + "HARGA_REGULER, "
+                + "ISVOUCHER "
                 + "FROM products WHERE ID = ?"
                 , SerializerWriteString.INSTANCE
                 , ProductInfoExt.getSerializerRead()).find(id);
@@ -458,7 +491,8 @@ public class DataLogicSales extends BeanFactoryDataSingle {
                 + "MEMODATE, "
                 + "SATUAN, "
                 + "HARGA_EXPRESS, "
-                + "HARGA_REGULER "      
+                + "HARGA_REGULER, "
+                + "ISVOUCHER "
                 + "FROM products WHERE CODE = ?"
                 , SerializerWriteString.INSTANCE
                 , ProductInfoExt.getSerializerRead()).find(sCode);
@@ -501,7 +535,8 @@ public class DataLogicSales extends BeanFactoryDataSingle {
                 + "MEMODATE, "
                 + "SATUAN, "
                 + "HARGA_EXPRESS, "
-                + "HARGA_REGULER "
+                + "HARGA_REGULER, "
+                + "ISVOUCHER "
                 + "FROM products "
                 + "WHERE SUBSTRING( CODE, 3, 6 ) = ?"
                 , SerializerWriteString.INSTANCE
@@ -552,7 +587,8 @@ public class DataLogicSales extends BeanFactoryDataSingle {
                 + "MEMODATE, "
                 + "SATUAN, "
                 + "HARGA_EXPRESS, "
-                + "HARGA_REGULER "
+                + "HARGA_REGULER, "
+                + "ISVOUCHER "
                 + "FROM products "
                 + "WHERE LEFT( CODE, 7 ) = ? AND CODETYPE = 'UPC-A' "
 //  selection of 7 digits ie: 2123456 specific to allow for other 12 digit
@@ -604,7 +640,8 @@ public class DataLogicSales extends BeanFactoryDataSingle {
                 + "MEMODATE, "
                 + "SATUAN, "
                 + "HARGA_EXPRESS, "
-                + "HARGA_REGULER "
+                + "HARGA_REGULER, "
+                + "ISVOUCHER "
                 + "FROM products WHERE REFERENCE = ?"
                 , SerializerWriteString.INSTANCE
                 , ProductInfoExt.getSerializerRead()).find(sReference);
@@ -709,7 +746,8 @@ public class DataLogicSales extends BeanFactoryDataSingle {
                 + "P.MEMODATE, "
                 + "P.SATUAN, "
                 + "P.HARGA_EXPRESS, "
-                + "P.HARGA_REGULER "
+                + "P.HARGA_REGULER, "
+                + "P.ISVOUCHER "
                 + "FROM products P, products_cat O "
                 + "WHERE P.ID = O.PRODUCT AND P.CATEGORY = ? "
                 + "ORDER BY O.CATORDER, P.NAME "
@@ -758,7 +796,8 @@ public class DataLogicSales extends BeanFactoryDataSingle {
                 + "p.MEMODATE, "
                 + "p.SATUAN, "
                 + "p.HARGA_EXPRESS, "
-                + "p.HARGA_REGULER "
+                + "p.HARGA_REGULER, "
+                + "p.ISVOUCHER "
                 + "FROM products P, "
                 + "products_cat O, products_com M "
                 + "WHERE P.ID = O.PRODUCT AND P.ID = M.PRODUCT2 AND M.PRODUCT = ? "
@@ -809,7 +848,8 @@ public class DataLogicSales extends BeanFactoryDataSingle {
                 + "products.MEMODATE, "
                 + "products.SATUAN, "
                 + "products.HARGA_EXPRESS, "
-                + "products.HARGA_REGULER " 
+                + "products.HARGA_REGULER, "
+                + "products.ISVOUCHER "
                 + "FROM categories INNER JOIN products ON (products.CATEGORY = categories.ID) "
                 + "WHERE products.ISCONSTANT = " +s.DB.TRUE()+ " "
                 + "ORDER BY categories.NAME, products.NAME",
@@ -902,8 +942,9 @@ public class DataLogicSales extends BeanFactoryDataSingle {
                         + "UOM, "
                         + "MEMODATE, "
                         + "SATUAN, "
-                        + "HARGA_REGULER, "
                         + "HARGA_EXPRESS, "
+                        + "HARGA_REGULER, "
+                        + "ISVOUCHER "
                         + "FROM products "
                         + "WHERE ?(QBF_FILTER) "
                         + "ORDER BY REFERENCE",
@@ -957,7 +998,8 @@ public class DataLogicSales extends BeanFactoryDataSingle {
                         + "MEMODATE, "
                         + "SATUAN, "
                         + "HARGA_EXPRESS, "
-                        + "HARGA_REGULER "
+                        + "HARGA_REGULER, "
+                        + "ISVOUCHER "
                         + "FROM products "
                         + "WHERE ISCOM = " + s.DB.FALSE() + " AND ?(QBF_FILTER) ORDER BY REFERENCE",
                 new String[] {"NAME", "PRICEBUY", "PRICESELL", "CATEGORY", "CODE"})
@@ -1009,7 +1051,8 @@ public class DataLogicSales extends BeanFactoryDataSingle {
                 + "MEMODATE, "
                 + "SATUAN, "
                 + "HARGA_EXPRESS, "
-                + "HARGA_REGULER "
+                + "HARGA_REGULER, "
+                + "ISVOUCHER "
                 + "FROM products "
                 + "ORDER BY NAME"
                 , null
@@ -1087,7 +1130,8 @@ public class DataLogicSales extends BeanFactoryDataSingle {
                         + "MEMODATE, "
                         + "SATUAN, "
                         + "HARGA_EXPRESS, "
-                        + "HARGA_REGULER "
+                        + "HARGA_REGULER, "
+                        + "ISVOUCHER "
                         + "FROM products "
                         + "WHERE ISCOM = " + s.DB.TRUE() + " AND ?(QBF_FILTER) "
                         + "ORDER BY REFERENCE", new String[] {"NAME", "PRICEBUY", "PRICESELL", "CATEGORY", "CODE"})
@@ -1779,7 +1823,7 @@ public class DataLogicSales extends BeanFactoryDataSingle {
                     "L.UNITS, L.PRICE, T.ID, T.NAME, T.CATEGORY, T.CUSTCATEGORY, " +
                     "T.PARENTID, T.RATE, T.RATECASCADE, T.RATEORDER, L.ATTRIBUTES,L.UNITSPCS,L.MERK, " +
                     "L.MODEL,L.WARNA,L.CATBOCELDESC,L.PATAHHADWAREDESC,L.KAINLUNTURDESC,L.KAINPUDARDESC, "+
-                    "L.KAINBERBERCAKDESC,L.KONDISILAINDESC,L.ISDIAMBIL "+
+                    "L.KAINBERBERCAKDESC,L.KONDISILAINDESC,L.ISDIAMBIL,L.NAMAPENGAMBIL,L.NOHPPENGAMBIL,L.DIKERJAKANOLEH "+
                     "FROM ticketlines L, taxes T " +
                     "WHERE L.TAXID = T.ID AND L.TICKET = ? ORDER BY L.LINE"
                     , SerializerWriteString.INSTANCE
@@ -1886,8 +1930,8 @@ public class DataLogicSales extends BeanFactoryDataSingle {
                         + "PRODUCT, ATTRIBUTESETINSTANCE_ID, "
                         + "UNITS, PRICE, TAXID, ATTRIBUTES,UNITSPCS,MERK,MODEL, "
                         + "WARNA,CATBOCELDESC,PATAHHADWAREDESC,KAINLUNTURDESC, "
-                        + "KAINPUDARDESC,KAINBERBERCAKDESC,KONDISILAINDESC,ISDIAMBIL) "
-                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?,?,?)"
+                        + "KAINPUDARDESC,KAINBERBERCAKDESC,KONDISILAINDESC,ISDIAMBIL,NAMAPENGAMBIL,NOHPPENGAMBIL,DIKERJAKANOLEH) "
+                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?, ?)"
                         , SerializerWriteBuilder.INSTANCE);
 
                 for (TicketLineInfo l : ticket.getLines()) {

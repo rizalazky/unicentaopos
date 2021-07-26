@@ -609,11 +609,11 @@ public final class TicketInfo implements SerializableRead, Externalizable {
         return hari+"/"+(m_dDate.getMonth()+1)+"/"+(m_dDate.getYear()+1900)+" "+(jam < 10 ? "0"+jam : jam)+":"+(menit < 10 ? "0"+menit :menit);
     }
     
-    public String printDateTicketH3() {
+    public String printDateTicketH3(int param) {
         
         Calendar c = Calendar.getInstance(); 
         c.setTime(m_dDate); 
-        c.add(Calendar.DATE, 3);
+        c.add(Calendar.DATE, param);
         m_dDate = c.getTime();
         
         int hari =m_dDate.getDate();

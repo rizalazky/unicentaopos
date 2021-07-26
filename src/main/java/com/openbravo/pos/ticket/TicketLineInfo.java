@@ -59,6 +59,9 @@ public class TicketLineInfo implements SerializableWrite, SerializableRead, Seri
     private String model;
     private String warna;
     private String catBocelDesc;
+    private String namaPengambil;
+    private String noHpPengambil;
+    private String diKerjakanOleh;
     private String patahHadwareDesc;
     private String kainLunturDesc;
     private String kainPudarDesc;
@@ -73,9 +76,9 @@ public class TicketLineInfo implements SerializableWrite, SerializableRead, Seri
      * @param props */
     public TicketLineInfo(String productid, double dMultiply,double dMultiplyPcs,String dMerk,String dModel,String dWarna,
             String catBocel,String patahHadware,String kainLuntur,String kainPudar,String kainBercak,
-            String kondisiLain,Boolean isDiambil,double dPrice, TaxInfo tax, Properties props) {
+            String kondisiLain,Boolean isDiambil,String namaPengambil,String noHpPengambil,String diKerjakanOleh,double dPrice, TaxInfo tax, Properties props) {
         init(productid, null, dMultiply,dMultiplyPcs,dMerk,dModel,dWarna,catBocel,patahHadware,kainLuntur,kainPudar,kainBercak
-                ,kondisiLain,isDiambil,dPrice, tax, props);
+                ,kondisiLain,isDiambil,namaPengambil,noHpPengambil,diKerjakanOleh,dPrice, tax, props);
     }
 
     /**
@@ -87,9 +90,9 @@ public class TicketLineInfo implements SerializableWrite, SerializableRead, Seri
      */
     public TicketLineInfo(String productid, double dMultiply,double dMultiplyPcs,String dMerk,String dModel,String dWarna,
             String catBocel,String patahHadware,String kainLuntur,String kainPudar,String kainBercak,
-            String kondisiLain,Boolean isDiambil, double dPrice, TaxInfo tax) {
+            String kondisiLain,Boolean isDiambil,String namaPengambil,String noHpPengambil,String diKerjakanOleh, double dPrice, TaxInfo tax) {
         init(productid, null, dMultiply,dMultiplyPcs,dMerk,dModel,dWarna,catBocel,patahHadware,kainLuntur,kainPudar,kainBercak
-                ,kondisiLain,isDiambil, dPrice, tax, new Properties());
+                ,kondisiLain,isDiambil,namaPengambil,noHpPengambil,diKerjakanOleh, dPrice, tax, new Properties());
     }
 
     /**
@@ -104,14 +107,14 @@ public class TicketLineInfo implements SerializableWrite, SerializableRead, Seri
      */
     public TicketLineInfo(String productid, String productname, String producttaxcategory, String productprinter, double dMultiply,double dMultiplyPcs,String dMerk,String dModel,String dWarna,
             String catBocel,String patahHadware,String kainLuntur,String kainPudar,String kainBercak,
-            String kondisiLain,Boolean isDiambil, double dPrice, TaxInfo tax) {
+            String kondisiLain,Boolean isDiambil,String namaPengambil,String noHpPengambil,String diKerjakanOleh, double dPrice, TaxInfo tax) {
         Properties props = new Properties();
         props.setProperty("product.name", productname);
         props.setProperty("product.taxcategoryid", producttaxcategory);
         props.setProperty("product.printer", productprinter);   //added to props as may introduce printer redirect
         
         init(productid, null, dMultiply,dMultiplyPcs,dMerk,dModel,dWarna,catBocel,patahHadware,kainLuntur,kainPudar,kainBercak
-                ,kondisiLain,isDiambil, dPrice, tax, props);
+                ,kondisiLain,isDiambil,namaPengambil,noHpPengambil,diKerjakanOleh, dPrice, tax, props);
     }
 
     /**
@@ -125,7 +128,7 @@ public class TicketLineInfo implements SerializableWrite, SerializableRead, Seri
      */
     public TicketLineInfo(String productname, String producttaxcategory, String productprinter, double dMultiply,double dMultiplyPcs,String dMerk,String dModel,String dWarna,
             String catBocel,String patahHadware,String kainLuntur,String kainPudar,String kainBercak,
-            String kondisiLain,Boolean isDiambil, double dPrice, TaxInfo tax) {
+            String kondisiLain,Boolean isDiambil,String namaPengambil,String noHpPengambil,String diKerjakanOleh, double dPrice, TaxInfo tax) {
 
         Properties props = new Properties();
         props.setProperty("product.name", productname);
@@ -133,14 +136,14 @@ public class TicketLineInfo implements SerializableWrite, SerializableRead, Seri
         props.setProperty("product.printer", productprinter);
         
         init(null, null, dMultiply,dMultiplyPcs,dMerk,dModel,dWarna,catBocel,patahHadware,kainLuntur,kainPudar,kainBercak
-                ,kondisiLain,isDiambil, dPrice, tax, props);
+                ,kondisiLain,isDiambil,namaPengambil,noHpPengambil,diKerjakanOleh, dPrice, tax, props);
     }
 
     /**
      *
      */
     public TicketLineInfo() {
-        init(null, null, 0.0, 0.0,null,null,null,null,null,null,null,null,null,false,0.0, null, new Properties());
+        init(null, null, 0.0, 0.0,null,null,null,null,null,null,null,null,null,false,null,null,null,0.0, null, new Properties());
     }
 
     /**
@@ -153,7 +156,7 @@ public class TicketLineInfo implements SerializableWrite, SerializableRead, Seri
      */
     public TicketLineInfo(ProductInfoExt product, double dMultiply,double dMultiplyPcs,String dMerk,String dModel,String dWarna,
             String catBocel,String patahHadware,String kainLuntur,String kainPudar,String kainBercak,
-            String kondisiLain,Boolean isDiambil, double dPrice, TaxInfo tax, Properties attributes) {
+            String kondisiLain,Boolean isDiambil,String namaPengambil,String noHpPengambil,String diKerjakanOleh, double dPrice, TaxInfo tax, Properties attributes) {
 
         String pid;
 
@@ -168,7 +171,9 @@ public class TicketLineInfo implements SerializableWrite, SerializableRead, Seri
             attributes.setProperty("product.satuan", product.getSatuan());
             attributes.setProperty("product.hargareguler", Double.toString(product.getHargaReguler()));
             attributes.setProperty("product.hargaexpress", Double.toString(product.getHargaExpress()));
-
+            attributes.setProperty("product.isvoucher",product.isvoucher() ? "true" : "false");
+            
+            
             if (product.getMemoDate() == null) {
                 attributes.setProperty("product.memodate", "1900-01-01 00:00:01");                
             } else {
@@ -209,10 +214,12 @@ public class TicketLineInfo implements SerializableWrite, SerializableRead, Seri
             } else {
                 attributes.setProperty("ticket.updated", "true");                
             }
+            
+            
         }
 
         init(pid, null, dMultiply,dMultiplyPcs,dMerk,dModel,dWarna,catBocel,patahHadware,kainLuntur,kainPudar,kainBercak
-                ,kondisiLain,isDiambil, dPrice, tax, attributes);
+                ,kondisiLain,isDiambil,namaPengambil,noHpPengambil,diKerjakanOleh, dPrice, tax, attributes);
     }
 
     /**
@@ -223,7 +230,7 @@ public class TicketLineInfo implements SerializableWrite, SerializableRead, Seri
      * @param attributes
      */
     public TicketLineInfo(ProductInfoExt oProduct, double dPrice, TaxInfo tax, Properties attributes) {
-        this(oProduct, 1.0,1.0,null,null,null,null,null,null,null,null,null,false, dPrice, tax, attributes);
+        this(oProduct, 1.0,1.0,null,null,null,null,null,null,null,null,null,false,null,null,null, dPrice, tax, attributes);
     }
 
     /**
@@ -232,13 +239,13 @@ public class TicketLineInfo implements SerializableWrite, SerializableRead, Seri
      */
     public TicketLineInfo(TicketLineInfo line) {
         init(line.productid, line.attsetinstid, line.multiply,line.multiplyPcs,line.merk,line.model,line.warna,line.catBocelDesc,line.patahHadwareDesc,line.kainLunturDesc,line.kainPudarDesc,
-                line.kainBerbercakDesc,line.kondisiLainDesc,line.isDiambil,line.price, 
+                line.kainBerbercakDesc,line.kondisiLainDesc,line.isDiambil,line.namaPengambil,line.noHpPengambil,line.diKerjakanOleh,line.price, 
             line.tax, (Properties) line.attributes.clone());
     }
 
     private void init(String productid, String attsetinstid, double dMultiply,double dMultiplyPcs,String dMerk,String dModel,String dWarna,
             String catBocel,String patahHadware,String kainLuntur,String kainPudar,String kainBercak,
-            String kondisiLain,Boolean isdiambil, double dPrice, TaxInfo tax, Properties attributes) {
+            String kondisiLain,Boolean isdiambil,String namaPengambil,String noHpPengambil,String diKerjakanOleh,double dPrice, TaxInfo tax, Properties attributes) {
 
         this.productid = productid;
         this.attsetinstid = attsetinstid;
@@ -254,6 +261,9 @@ public class TicketLineInfo implements SerializableWrite, SerializableRead, Seri
         kainBerbercakDesc=kainBercak;
         kondisiLainDesc=kondisiLain;
         isDiambil=isdiambil;
+        namaPengambil=namaPengambil;
+        noHpPengambil=noHpPengambil;
+        diKerjakanOleh=diKerjakanOleh;
         price = dPrice;
         this.tax = tax;  
         this.attributes = attributes;
@@ -300,6 +310,9 @@ public class TicketLineInfo implements SerializableWrite, SerializableRead, Seri
         dp.setString(17, kainBerbercakDesc);
         dp.setString(18, kondisiLainDesc);
         dp.setBoolean(19, isDiambil);
+        dp.setString(20, namaPengambil);
+        dp.setString(21, noHpPengambil);
+        dp.setString(22, diKerjakanOleh);
         
     }
 
@@ -345,6 +358,9 @@ public class TicketLineInfo implements SerializableWrite, SerializableRead, Seri
         kainBerbercakDesc=dr.getString(24);
         kondisiLainDesc=dr.getString(25);
         isDiambil=dr.getBoolean(26);
+        namaPengambil=dr.getString(27);
+        noHpPengambil=dr.getString(28);
+        diKerjakanOleh=dr.getString(29);
     }
 
     /**
@@ -370,6 +386,9 @@ public class TicketLineInfo implements SerializableWrite, SerializableRead, Seri
         l.kainBerbercakDesc=kainBerbercakDesc;
         l.kondisiLainDesc=kondisiLainDesc;
         l.isDiambil=isDiambil;
+        l.namaPengambil=namaPengambil;
+        l.noHpPengambil=noHpPengambil;
+        l.diKerjakanOleh=diKerjakanOleh;
         return l;
     }
 
@@ -465,6 +484,15 @@ public class TicketLineInfo implements SerializableWrite, SerializableRead, Seri
     public String getKondisiLain() {
         return kondisiLainDesc;
     }
+    public String getNamaPengambil() {
+        return namaPengambil;
+    }
+    public String getNoHpPengambil() {
+        return noHpPengambil;
+    }
+    public String getDiKerjakanOleh() {
+        return diKerjakanOleh;
+    }
     public double getTaxRate() {
         return tax == null ? 0.0 : tax.getRate();
     }
@@ -537,6 +565,16 @@ public class TicketLineInfo implements SerializableWrite, SerializableRead, Seri
     }
     public void setCatBocel(String dValue) {
         catBocelDesc = dValue;
+    }
+    
+    public void setNamaPengambil(String dValue) {
+        namaPengambil = dValue;
+    }
+    public void setNoHpPengambil(String dValue) {
+        noHpPengambil = dValue;
+    }
+    public void setDikerjakanOleh(String dValue) {
+        diKerjakanOleh = dValue;
     }
     public void setPatahHadware(String dValue) {
         patahHadwareDesc = dValue;

@@ -132,6 +132,7 @@ public class JTicketsBagSharedList extends javax.swing.JDialog {
 // JG Nov 2014
             String total;
             try {
+                System.out.println("SHARED TICKET ID ==> "+ticket.getId());
                 TicketInfo ticket2 = dlReceipts.getSharedTicket(ticket.getId());
                 total = " - " + ticket2.printTotal();
             } catch (BasicException ex) {
