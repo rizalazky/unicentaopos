@@ -607,8 +607,11 @@ public class TokenBasedAuth {
     public void categoryInit() throws IOException{
       try {
 //          TokenBasedAuth tokenBasedAuth=new com.openbravo.pos.forms.TokenBasedAuth();
+          String getHost = getHost();
+          System.out.println("GET HOST: "+ getHost);
+
           String responseString=getMasterCategory();
-          System.out.println("Response Cat : "+responseString);
+          System.out.println("Response Cat Token Base: "+ responseString);
           JsonElement je = new JsonParser().parse(responseString);
           int jsonLength=je.getAsJsonArray().size();
           
@@ -617,6 +620,8 @@ public class TokenBasedAuth {
           //insert data from netsuite to databse unicenta
           for(int i=0;i<jsonLength;i++){
               try {
+                  System.out.println("Masuk loop");
+
                   Object[] newcat = new Object[6];
                   newcat[0] = je.getAsJsonArray().get(i).getAsJsonObject().get("id").getAsString();
                   newcat[1] = je.getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString();

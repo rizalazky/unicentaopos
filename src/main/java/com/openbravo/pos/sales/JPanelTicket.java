@@ -768,6 +768,7 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
     
     TaxInfo taxe = taxeslogic.getTaxInfo(oProduct.getTaxCategoryID(), m_oTicket.getCustomer());
     TicketLineInfo newline =null;
+
     if(typeMachine.contains("1") && !oProduct.isvoucher()){
         try {
             newline=JProductSelectPrice.showMessage(this, m_App, new TicketLineInfo(oProduct, dMul,1,null,null,null,null,null,null,null,null,null,false,null,null,null, dPrice, taxe,
@@ -776,6 +777,7 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
             Logger.getLogger(JPanelTicket.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
 
       if(newline !=null){
           dPrice=newline.getPrice();
@@ -789,7 +791,9 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
         dPrice /= (1 + tax.getRate());
       }
 
+
       addTicketLine(new TicketLineInfo(oProduct, dMul,1,null,null,null,null,null,null,null,null,null,false,null,null,null, dPrice, tax,
+
               (java.util.Properties) (oProduct.getProperties().clone())));
 
     } else if (oProduct.getID().equals("xxx998_998xxx_x8x8x8")) {
